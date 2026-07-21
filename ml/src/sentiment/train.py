@@ -1,4 +1,4 @@
-"""Fine-tune distilbert-base-uncased for 3-class review sentiment.
+"""Fine-tune bert-base-uncased for 3-class review sentiment.
 
 Usage:
     python -m src.sentiment.train

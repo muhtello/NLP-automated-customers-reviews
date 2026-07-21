@@ -1,8 +1,8 @@
 """Shared constants for the sentiment classification model."""
 
-MODEL_NAME = "distilbert-base-uncased"
+MODEL_NAME = "bert-base-uncased"
 
-LABELS = ["Negative", "Neutral", "Positive"]
+LABELS = ["Negative", "Positive"]
 LABEL2ID = {label: idx for idx, label in enumerate(LABELS)}
 ID2LABEL = {idx: label for label, idx in LABEL2ID.items()}
 

@@ -5,7 +5,8 @@ import pandas as pd
 RATING_TO_SENTIMENT = {
     1: "Negative",
     2: "Negative",
-    3: "Neutral",
+    # 3 (Neutral) is dropped: text at this rating is too ambiguous to serve
+    # as a reliable label for either class (see error analysis in inspect_errors.py).
     4: "Positive",
     5: "Positive",
 }
@@ -40,7 +41,7 @@ def deduplicate(df):
 def add_sentiment_label(df):
     df = df.copy()
     df["sentiment"] = df["reviews.rating"].round().astype(int).map(RATING_TO_SENTIMENT)
-    return df
+    return df[df["sentiment"].notna()]
 
 
 def normalize_whitespace(df, columns=("reviews.text", "reviews.title")):

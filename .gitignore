@@ -2,6 +2,8 @@ CLAUDE.md
 .claude
 data/
 ml/outputs/
+ml/venv/
+api/.venv/
 __pycache__/
 *.pyc
 
