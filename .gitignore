@@ -1,3 +1,7 @@
 CLAUDE.md
 .claude
 data/
+ml/outputs/
+__pycache__/
+*.pyc
+
