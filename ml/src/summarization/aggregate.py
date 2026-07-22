@@ -6,6 +6,16 @@ No API calls here - this only computes what the prompt needs.
 import pandas as pd
 
 from . import config
+from .images import build_image_lookup
+
+_image_lookup: dict[str, str] | None = None
+
+
+def _get_image_lookup() -> dict[str, str]:
+    global _image_lookup
+    if _image_lookup is None:
+        _image_lookup = build_image_lookup(config.RAW_DATA_DIR)
+    return _image_lookup
 
 
 def _product_stats(category_df: pd.DataFrame) -> pd.DataFrame:
@@ -37,6 +47,7 @@ def _product_entry(category_df: pd.DataFrame, name: str, row: pd.Series) -> dict
         "review_count": int(row["review_count"]),
         "pct_negative": round(float(row["pct_negative"]), 3),
         "sample_complaints": _sample_complaints(category_df, name),
+        "image_url": _get_image_lookup().get(name),
     }
 
 

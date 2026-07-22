@@ -43,6 +43,7 @@ class ProductStat(BaseModel):
     review_count: int
     pct_negative: float
     sample_complaints: list[str]
+    image_url: str | None = None
 
 
 class CategoryStats(BaseModel):

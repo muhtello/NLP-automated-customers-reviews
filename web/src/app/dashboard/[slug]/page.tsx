@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 
 import ArticleBody from "@/components/ArticleBody/ArticleBody";
 import CategoryIcon from "@/components/CategoryIcon/CategoryIcon";
+import ProductThumb from "@/components/ProductThumb/ProductThumb";
 import StampBadge from "@/components/StampBadge/StampBadge";
 
 type ProductStat = {
@@ -13,6 +14,7 @@ type ProductStat = {
   avg_rating: number;
   review_count: number;
   pct_negative: number;
+  image_url: string | null;
 };
 
 type CategorySummary = {
@@ -94,6 +96,7 @@ export default function CategoryDetail() {
                   <span className="w-6 shrink-0 font-display text-sm font-semibold text-ink-soft">
                     {String(index + 1).padStart(2, "0")}
                   </span>
+                  <ProductThumb imageUrl={product.image_url} categorySlug={slug} alt={product.name} />
                   <div className="flex flex-1 flex-col gap-1">
                     <p className="text-sm font-medium text-ink">{product.name}</p>
                     <div className="flex items-center gap-2">
@@ -112,8 +115,14 @@ export default function CategoryDetail() {
             {summary.stats.worst_product && (
               <section className="flex flex-col gap-2">
                 <h2 className="font-display text-sm font-semibold uppercase tracking-widest text-stamp-red">Flagged for return</h2>
-                <div className="flex items-center justify-between border-l-2 border-stamp-red bg-paper-raised p-4">
-                  <p className="text-sm font-medium text-ink">{summary.stats.worst_product.name}</p>
+                <div className="flex items-center gap-4 border-l-2 border-stamp-red bg-paper-raised p-4">
+                  <ProductThumb
+                    imageUrl={summary.stats.worst_product.image_url}
+                    categorySlug={slug}
+                    alt={summary.stats.worst_product.name}
+                    size="sm"
+                  />
+                  <p className="flex-1 text-sm font-medium text-ink">{summary.stats.worst_product.name}</p>
                   <span className="font-display text-xs text-ink-soft">
                     {summary.stats.worst_product.avg_rating.toFixed(2)} &middot; {summary.stats.worst_product.review_count} reviews
                   </span>

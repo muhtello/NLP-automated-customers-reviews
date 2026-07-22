@@ -20,6 +20,7 @@ OPENAI_MODEL = "gpt-4o-mini"
 # Paths are relative to the `ml/` directory, matching data_cleaning/pipeline.py
 # (DATA_DIR = "../data") and sentiment/config.py (CLEANED_DATA_PATH = "outputs/...").
 META_CATEGORY_DATA_PATH = "../data/reviews_with_meta_categories.csv"
+RAW_DATA_DIR = "../data"
 SUMMARY_OUTPUT_DIR = "outputs/summaries"
 
 # Products with fewer reviews than this are excluded from top/worst ranking so a
