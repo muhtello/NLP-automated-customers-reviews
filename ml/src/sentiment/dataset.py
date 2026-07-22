@@ -68,15 +68,22 @@ def build_dataset_dict(train_df: pd.DataFrame, val_df: pd.DataFrame, test_df: pd
     )
 
 
+def _tokenize_batch(batch: dict, tokenizer: PreTrainedTokenizerBase) -> dict:
+    return tokenizer(
+        batch["text"],
+        truncation=True,
+        max_length=MAX_SEQUENCE_LENGTH,
+        padding="max_length",
+    )
+
+
 def tokenize_dataset_dict(dataset_dict: DatasetDict, tokenizer: PreTrainedTokenizerBase) -> DatasetDict:
     """Tokenize the `text` field of every split with truncation/padding."""
+    return dataset_dict.map(
+        lambda batch: _tokenize_batch(batch, tokenizer), batched=True, remove_columns=["text"]
+    )
 
-    def _tokenize(batch: dict) -> dict:
-        return tokenizer(
-            batch["text"],
-            truncation=True,
-            max_length=MAX_SEQUENCE_LENGTH,
-            padding="max_length",
-        )
 
-    return dataset_dict.map(_tokenize, batched=True, remove_columns=["text"])
+def tokenize_single_dataset(dataset: Dataset, tokenizer: PreTrainedTokenizerBase) -> Dataset:
+    """Tokenize the `text` field of a single (non-split-dict) dataset."""
+    return dataset.map(lambda batch: _tokenize_batch(batch, tokenizer), batched=True, remove_columns=["text"])

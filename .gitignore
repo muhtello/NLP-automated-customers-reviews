@@ -6,4 +6,5 @@ ml/venv/
 api/.venv/
 __pycache__/
 *.pyc
+.env
 

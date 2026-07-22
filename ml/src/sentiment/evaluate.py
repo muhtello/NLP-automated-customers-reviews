@@ -11,11 +11,24 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+from datasets import Dataset
 from sklearn.metrics import ConfusionMatrixDisplay, classification_report, confusion_matrix
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, Trainer
 
 from src.sentiment.config import CLEANED_DATA_PATH, LABELS, MODEL_REGISTRY, eval_output_dir, model_output_dir
-from src.sentiment.dataset import build_dataset_dict, load_cleaned_reviews, split_dataset, tokenize_dataset_dict
+from src.sentiment.dataset import load_cleaned_reviews, split_dataset, tokenize_single_dataset
+
+
+def _load_test_df(output_dir: str) -> pd.DataFrame:
+    """Load the test split saved by train.py, falling back to re-deriving it
+    (only relevant for models trained before this split was persisted)."""
+    split_path = f"{output_dir}/test_split.parquet"
+    if os.path.exists(split_path):
+        return pd.read_parquet(split_path)
+    df = load_cleaned_reviews(CLEANED_DATA_PATH)
+    _, _, test_df = split_dataset(df)
+    return test_df
 
 
 def main(model_key: str) -> None:
@@ -26,10 +39,9 @@ def main(model_key: str) -> None:
     tokenizer = AutoTokenizer.from_pretrained(output_dir)
     model = AutoModelForSequenceClassification.from_pretrained(output_dir)
 
-    df = load_cleaned_reviews(CLEANED_DATA_PATH)
-    _, _, test_df = split_dataset(df)
-    dataset_dict = build_dataset_dict(test_df, test_df, test_df)
-    tokenized_test = tokenize_dataset_dict(dataset_dict, tokenizer)["test"]
+    test_df = _load_test_df(output_dir)
+    test_dataset = Dataset.from_pandas(test_df, preserve_index=False)
+    tokenized_test = tokenize_single_dataset(test_dataset, tokenizer)
 
     predictions = Trainer(model=model).predict(tokenized_test)  # type: ignore
     predicted_labels = np.argmax(predictions.predictions, axis=1)

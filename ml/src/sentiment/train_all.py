@@ -7,18 +7,21 @@ Run from the `ml/` directory.
 
 import os
 
-from src.sentiment.config import MODEL_REGISTRY, model_output_dir
+from src.sentiment.config import MODEL_REGISTRY, eval_output_dir, model_output_dir
 from src.sentiment.evaluate import main as evaluate_model
 from src.sentiment.train import main as train_model
 
 
 def main() -> None:
     for model_key in MODEL_REGISTRY:
-        if os.path.exists(f"{model_output_dir(model_key)}/config.json"):
-            print(f"[{model_key}] Already trained, skipping.")
+        trained = os.path.exists(f"{model_output_dir(model_key)}/config.json")
+        evaluated = os.path.exists(f"{eval_output_dir(model_key)}/classification_report.json")
+        if trained and evaluated:
+            print(f"[{model_key}] Already trained and evaluated, skipping.")
             continue
-        print(f"[{model_key}] Training...")
-        train_model(model_key)
+        if not trained:
+            print(f"[{model_key}] Training...")
+            train_model(model_key)
         print(f"[{model_key}] Evaluating...")
         evaluate_model(model_key)
 

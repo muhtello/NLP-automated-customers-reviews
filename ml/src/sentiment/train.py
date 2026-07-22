@@ -79,6 +79,9 @@ def main(model_key: str) -> None:
     pretrained_name = MODEL_REGISTRY[model_key]["pretrained_name"]
     output_dir = model_output_dir(model_key)
 
+    device_name = torch.cuda.get_device_name(0) if torch.cuda.is_available() else "CPU"
+    print(f"[{model_key}] CUDA available: {torch.cuda.is_available()} -> training on {device_name}")
+
     df = load_cleaned_reviews(CLEANED_DATA_PATH)
     train_df, val_df, test_df = split_dataset(df)
     print(f"[{model_key}] Split sizes -> train: {len(train_df)}, val: {len(val_df)}, test: {len(test_df)}")
@@ -128,6 +131,10 @@ def main(model_key: str) -> None:
 
     trainer.save_model(output_dir)
     tokenizer.save_pretrained(output_dir)
+    # Persist the exact test split used for this run so evaluate.py doesn't have
+    # to re-derive it (which would silently diverge if the cleaned dataset is
+    # ever regenerated with a different row order).
+    test_df.to_parquet(f"{output_dir}/test_split.parquet", index=False)
     print(f"[{model_key}] Model saved to {output_dir}")
 
 

@@ -34,7 +34,13 @@ def clean_rating(df):
 
 
 def deduplicate(df):
-    return df.drop_duplicates(subset=["name", "reviews.text", "reviews.rating"])
+    # drop_duplicates treats NaN as equal, which would collapse distinct reviews
+    # that share text+rating but both have a missing `name`. Only dedup rows
+    # that have a real name; keep all name-less rows untouched.
+    named = df[df["name"].notna()]
+    unnamed = df[df["name"].isna()]
+    named = named.drop_duplicates(subset=["name", "reviews.text", "reviews.rating"])
+    return pd.concat([named, unnamed]).sort_index()
 
 
 def add_sentiment_label(df):
