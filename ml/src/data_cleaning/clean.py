@@ -6,7 +6,6 @@ RATING_TO_SENTIMENT = {
     1: "Negative",
     2: "Negative",
     # 3 (Neutral) is dropped: text at this rating is too ambiguous to serve
-    # as a reliable label for either class (see error analysis in inspect_errors.py).
     4: "Positive",
     5: "Positive",
 }

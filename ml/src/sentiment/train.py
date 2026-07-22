@@ -1,9 +1,11 @@
-"""Fine-tune bert-base-uncased for 3-class review sentiment.
+"""Fine-tune a transformer for 2-class (Negative/Positive) review sentiment.
 
 Usage:
-    python -m src.sentiment.train
-Run from the `ml/` directory.
+    python -m src.sentiment.train --model bert
+Run from the `ml/` directory. `--model` must be a key in MODEL_REGISTRY (config.py).
 """
+
+import argparse
 
 import numpy as np
 import torch
@@ -22,9 +24,9 @@ from src.sentiment.config import (
     ID2LABEL,
     LABEL2ID,
     LABELS,
-    MODEL_NAME,
-    MODEL_OUTPUT_DIR,
+    MODEL_REGISTRY,
     RANDOM_SEED,
+    model_output_dir,
 )
 from src.sentiment.dataset import (
     build_dataset_dict,
@@ -73,25 +75,29 @@ def compute_metrics(eval_pred: EvalPrediction) -> dict:
     }
 
 
-def main() -> None:
+def main(model_key: str) -> None:
+    pretrained_name = MODEL_REGISTRY[model_key]["pretrained_name"]
+    output_dir = model_output_dir(model_key)
+
     df = load_cleaned_reviews(CLEANED_DATA_PATH)
     train_df, val_df, test_df = split_dataset(df)
-    print(f"Split sizes -> train: {len(train_df)}, val: {len(val_df)}, test: {len(test_df)}")
+    print(f"[{model_key}] Split sizes -> train: {len(train_df)}, val: {len(val_df)}, test: {len(test_df)}")
 
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+    tokenizer = AutoTokenizer.from_pretrained(pretrained_name)
     dataset_dict = build_dataset_dict(train_df, val_df, test_df)
     tokenized = tokenize_dataset_dict(dataset_dict, tokenizer)
 
     model = AutoModelForSequenceClassification.from_pretrained(
-        MODEL_NAME,
+        pretrained_name,
         num_labels=len(LABELS),
         id2label=ID2LABEL,
         label2id=LABEL2ID,
+        ignore_mismatched_sizes=True,
     )
     class_weights = compute_class_weights(train_df["label"].tolist())
 
     training_args = TrainingArguments(
-        output_dir=f"{MODEL_OUTPUT_DIR}/checkpoints",
+        output_dir=f"{output_dir}/checkpoints",
         num_train_epochs=2,
         per_device_train_batch_size=16,
         per_device_eval_batch_size=32,
@@ -118,12 +124,15 @@ def main() -> None:
     trainer.train()
 
     test_metrics = trainer.evaluate(tokenized["test"], metric_key_prefix="test")
-    print("Test metrics:", test_metrics)
+    print(f"[{model_key}] Test metrics:", test_metrics)
 
-    trainer.save_model(MODEL_OUTPUT_DIR)
-    tokenizer.save_pretrained(MODEL_OUTPUT_DIR)
-    print(f"Model saved to {MODEL_OUTPUT_DIR}")
+    trainer.save_model(output_dir)
+    tokenizer.save_pretrained(output_dir)
+    print(f"[{model_key}] Model saved to {output_dir}")
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--model", required=True, choices=list(MODEL_REGISTRY))
+    args = parser.parse_args()
+    main(args.model)

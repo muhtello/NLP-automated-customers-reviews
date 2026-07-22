@@ -1,14 +1,18 @@
-"""Loads the trained sentiment model and runs inference on review text."""
+"""Loads trained sentiment models on demand and runs inference on review text."""
 
-from pathlib import Path
+from functools import lru_cache
 
 from transformers import pipeline
 
-MODEL_DIR = Path(__file__).resolve().parents[2] / "ml" / "outputs" / "sentiment_model"
-
-_classifier = pipeline("text-classification", model=str(MODEL_DIR), tokenizer=str(MODEL_DIR))
+from src.models_registry import MODEL_REGISTRY, model_dir
 
 
-def predict_sentiment(text: str) -> dict:
-    result = _classifier(text, truncation=True)[0]
+@lru_cache(maxsize=len(MODEL_REGISTRY))
+def _get_classifier(model_key: str):
+    path = str(model_dir(model_key))
+    return pipeline("text-classification", model=path, tokenizer=path)
+
+
+def predict_sentiment(text: str, model_key: str) -> dict:
+    result = _get_classifier(model_key)(text, truncation=True)[0]
     return {"label": result["label"], "confidence": result["score"]}
