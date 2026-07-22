@@ -65,6 +65,9 @@ def build_category_stats(category_df: pd.DataFrame, category_name: str) -> dict:
 
     return {
         "category": category_name,
+        "total_reviews": int(len(category_df)),
+        "avg_rating": round(float(category_df["reviews.rating"].mean()), 2),
+        "pct_negative": round(float((category_df["sentiment"] == "Negative").mean()), 3),
         "top_products": top_products,
         "worst_product": worst_product,
     }

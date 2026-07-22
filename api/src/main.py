@@ -68,7 +68,16 @@ def list_categories() -> list[CategoryListItem]:
     for slug in available_slugs():
         summary = load_summary(slug)
         if summary is not None:
-            items.append(CategoryListItem(slug=slug, category=summary["stats"]["category"]))
+            stats = summary["stats"]
+            items.append(
+                CategoryListItem(
+                    slug=slug,
+                    category=stats["category"],
+                    total_reviews=stats["total_reviews"],
+                    avg_rating=stats["avg_rating"],
+                    pct_negative=stats["pct_negative"],
+                )
+            )
     return items
 
 

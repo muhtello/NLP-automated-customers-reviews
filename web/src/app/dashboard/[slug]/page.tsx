@@ -4,18 +4,24 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
+import ArticleBody from "@/components/ArticleBody/ArticleBody";
+import CategoryIcon from "@/components/CategoryIcon/CategoryIcon";
+import StampBadge from "@/components/StampBadge/StampBadge";
+
 type ProductStat = {
   name: string;
   avg_rating: number;
   review_count: number;
   pct_negative: number;
-  sample_complaints: string[];
 };
 
 type CategorySummary = {
   slug: string;
   stats: {
     category: string;
+    total_reviews: number;
+    avg_rating: number;
+    pct_negative: number;
     top_products: ProductStat[];
     worst_product: ProductStat | null;
   };
@@ -40,55 +46,83 @@ export default function CategoryDetail() {
         setError("");
       })
       .catch(() => {
-        setError("Could not load this category. Is the API running on port 8000?");
+        setError("This entry is not on file. Is the API running on port 8000?");
         setSummary(null);
       });
   }, [slug]);
 
   return (
-    <div className="mx-auto flex max-w-2xl flex-col gap-6 p-6">
-      <Link href="/dashboard" className="text-sm text-blue-600 hover:underline">
-        &larr; Back to dashboard
-      </Link>
+    <div className="min-h-screen">
+      <header className="border-b border-line bg-ledger px-6 py-4 text-paper">
+        <div className="mx-auto max-w-3xl">
+          <Link href="/dashboard" className="font-display text-xs uppercase tracking-widest text-paper/80 hover:text-paper hover:underline">
+            &larr; Back to ledger
+          </Link>
+        </div>
+      </header>
 
-      {error && <p className="text-red-600">{error}</p>}
-      {!summary && !error && <p>Loading...</p>}
+      <main className="mx-auto flex max-w-3xl flex-col gap-8 p-6">
+        {error && <p className="text-sm text-stamp-red">{error}</p>}
+        {!summary && !error && <p className="font-display text-xs uppercase tracking-widest text-ink-soft">Pulling entry...</p>}
 
-      {summary && (
-        <>
-          <h1 className="text-2xl font-semibold">{summary.stats.category}</h1>
-
-          <article className="prose whitespace-pre-wrap text-sm leading-relaxed">{summary.article}</article>
-
-          <section>
-            <h2 className="mb-2 text-lg font-medium">Top products</h2>
-            <ul className="flex flex-col gap-2">
-              {summary.stats.top_products.map((product) => (
-                <li key={product.name} className="rounded border border-gray-200 p-3">
-                  <p className="font-medium">{product.name}</p>
-                  <p className="text-sm text-gray-500">
-                    {product.avg_rating.toFixed(2)} avg rating &middot; {product.review_count} reviews &middot;{" "}
-                    {(product.pct_negative * 100).toFixed(1)}% negative
-                  </p>
-                </li>
-              ))}
-            </ul>
-          </section>
-
-          {summary.stats.worst_product && (
-            <section>
-              <h2 className="mb-2 text-lg font-medium">One to avoid</h2>
-              <div className="rounded border border-red-200 bg-red-50 p-3">
-                <p className="font-medium">{summary.stats.worst_product.name}</p>
-                <p className="text-sm text-gray-500">
-                  {summary.stats.worst_product.avg_rating.toFixed(2)} avg rating &middot;{" "}
-                  {summary.stats.worst_product.review_count} reviews
+        {summary && (
+          <>
+            <section className="flex items-start justify-between gap-6 border-b border-dashed border-line pb-6">
+              <div className="flex flex-col gap-2">
+                <span className="font-display text-[11px] uppercase tracking-[0.2em] text-ink-soft">
+                  Manifest entry &middot; {summary.stats.total_reviews.toLocaleString()} reviews on file
+                </span>
+                <h1 className="flex items-center gap-3 font-display text-2xl font-semibold tracking-tight text-ink">
+                  <CategoryIcon slug={slug} className="h-7 w-7 text-ledger" />
+                  {summary.stats.category}
+                </h1>
+                <p className="font-display text-xs uppercase tracking-wide text-ink-soft">
+                  Negative rate {(summary.stats.pct_negative * 100).toFixed(1)}%
                 </p>
               </div>
+              <StampBadge avgRating={summary.stats.avg_rating} pctNegative={summary.stats.pct_negative} size="lg" animate />
             </section>
-          )}
-        </>
-      )}
+
+            <section className="rounded-sm border-l-2 border-ledger bg-paper-raised p-6">
+              <ArticleBody text={summary.article} />
+            </section>
+
+            <section className="flex flex-col gap-3">
+              <h2 className="font-display text-sm font-semibold uppercase tracking-widest text-ink-soft">Top products</h2>
+              {summary.stats.top_products.map((product, index) => (
+                <div key={product.name} className="flex items-center gap-4 border-b border-line py-3 last:border-none">
+                  <span className="w-6 shrink-0 font-display text-sm font-semibold text-ink-soft">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <div className="flex flex-1 flex-col gap-1">
+                    <p className="text-sm font-medium text-ink">{product.name}</p>
+                    <div className="flex items-center gap-2">
+                      <div className="h-1.5 w-32 overflow-hidden rounded-full bg-line">
+                        <div className="h-full bg-stamp-green" style={{ width: `${(product.avg_rating / 5) * 100}%` }} />
+                      </div>
+                      <span className="font-display text-xs text-ink-soft">
+                        {product.avg_rating.toFixed(2)} &middot; {product.review_count} reviews
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </section>
+
+            {summary.stats.worst_product && (
+              <section className="flex flex-col gap-2">
+                <h2 className="font-display text-sm font-semibold uppercase tracking-widest text-stamp-red">Flagged for return</h2>
+                <div className="flex items-center justify-between border-l-2 border-stamp-red bg-paper-raised p-4">
+                  <p className="text-sm font-medium text-ink">{summary.stats.worst_product.name}</p>
+                  <span className="font-display text-xs text-ink-soft">
+                    {summary.stats.worst_product.avg_rating.toFixed(2)} &middot; {summary.stats.worst_product.review_count} reviews
+                  </span>
+                </div>
+              </section>
+            )}
+          </>
+        )}
+      </main>
     </div>
   );
 }

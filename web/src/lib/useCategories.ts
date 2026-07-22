@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
 
-export type CategoryListItem = { slug: string; category: string };
+export type CategoryListItem = {
+  slug: string;
+  category: string;
+  total_reviews: number;
+  avg_rating: number;
+  pct_negative: number;
+};
 
 export function useCategories() {
   const [categories, setCategories] = useState<CategoryListItem[]>([]);

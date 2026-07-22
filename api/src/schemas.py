@@ -47,6 +47,9 @@ class ProductStat(BaseModel):
 
 class CategoryStats(BaseModel):
     category: str
+    total_reviews: int
+    avg_rating: float
+    pct_negative: float
     top_products: list[ProductStat]
     worst_product: ProductStat | None
 
@@ -60,3 +63,6 @@ class CategorySummary(BaseModel):
 class CategoryListItem(BaseModel):
     slug: str
     category: str
+    total_reviews: int
+    avg_rating: float
+    pct_negative: float

@@ -1,1 +1,43 @@
 @import "tailwindcss";
+
+@theme {
+  --color-paper: #ece9e1;
+  --color-paper-raised: #f7f5ef;
+  --color-ink: #1c1b18;
+  --color-ink-soft: #5b584e;
+  --color-ledger: #23414a;
+  --color-ledger-soft: #4a6169;
+  --color-stamp-green: #3f6b4c;
+  --color-stamp-red: #a63a2e;
+  --color-stamp-amber: #a9762c;
+  --color-line: #d8d2c2;
+
+  --font-display: var(--font-plex-mono);
+  --font-body: var(--font-plex-sans);
+}
+
+@keyframes stamp-down {
+  0% {
+    opacity: 0;
+    transform: translateY(-14px) scale(1.3) rotate(-8deg);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(2px) scale(0.96) rotate(-9deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(-8deg);
+  }
+}
+
+.animate-stamp-down {
+  animation: stamp-down 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-stamp-down {
+    animation: none;
+    transform: rotate(-8deg);
+  }
+}
