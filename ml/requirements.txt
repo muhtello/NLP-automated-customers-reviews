@@ -12,3 +12,6 @@ accelerate
 # torch is installed separately with a CUDA build matching the local GPU:
 # pip install --index-url https://download.pytorch.org/whl/cu126 torch==2.13.0+cu126
 torch
+
+# Review summarization (Objective 3)
+openai

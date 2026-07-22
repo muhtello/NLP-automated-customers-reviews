@@ -12,7 +12,15 @@ from fastapi.staticfiles import StaticFiles
 from src.metrics import get_sentiment_metrics
 from src.model import predict_sentiment
 from src.models_registry import MODEL_REGISTRY, SENTIMENT_EVAL_ROOT, available_model_keys
-from src.schemas import ModelInfo, PredictRequest, PredictResponse, SentimentMetrics
+from src.schemas import (
+    CategoryListItem,
+    CategorySummary,
+    ModelInfo,
+    PredictRequest,
+    PredictResponse,
+    SentimentMetrics,
+)
+from src.summaries_registry import available_slugs, load_summary
 
 app = FastAPI(title="Customer Reviews API")
 
@@ -52,3 +60,21 @@ def sentiment_metrics(model: str = "bert") -> SentimentMetrics:
 def predict(request: PredictRequest) -> PredictResponse:
     _require_available(request.model)
     return PredictResponse(**predict_sentiment(request.text, request.model))
+
+
+@app.get("/categories", response_model=list[CategoryListItem])
+def list_categories() -> list[CategoryListItem]:
+    items = []
+    for slug in available_slugs():
+        summary = load_summary(slug)
+        if summary is not None:
+            items.append(CategoryListItem(slug=slug, category=summary["stats"]["category"]))
+    return items
+
+
+@app.get("/categories/{slug}", response_model=CategorySummary)
+def get_category(slug: str) -> CategorySummary:
+    summary = load_summary(slug)
+    if summary is None:
+        raise HTTPException(status_code=404, detail=f"Category '{slug}' not found.")
+    return CategorySummary(slug=slug, **summary)

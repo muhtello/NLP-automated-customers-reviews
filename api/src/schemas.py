@@ -35,3 +35,28 @@ class SentimentMetrics(BaseModel):
     positive: ClassMetrics
     macro_avg: ClassMetrics
     confusion_matrix_url: str
+
+
+class ProductStat(BaseModel):
+    name: str
+    avg_rating: float
+    review_count: int
+    pct_negative: float
+    sample_complaints: list[str]
+
+
+class CategoryStats(BaseModel):
+    category: str
+    top_products: list[ProductStat]
+    worst_product: ProductStat | None
+
+
+class CategorySummary(BaseModel):
+    slug: str
+    stats: CategoryStats
+    article: str
+
+
+class CategoryListItem(BaseModel):
+    slug: str
+    category: str

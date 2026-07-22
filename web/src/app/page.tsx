@@ -42,9 +42,14 @@ export default function Home() {
       <main className="flex w-full max-w-xl flex-col gap-6">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-semibold">Review Sentiment Checker</h1>
-          <Link href="/results" className="text-sm text-blue-600 hover:underline">
-            View model results
-          </Link>
+          <div className="flex gap-4">
+            <Link href="/dashboard" className="text-sm text-blue-600 hover:underline">
+              Category dashboard
+            </Link>
+            <Link href="/results" className="text-sm text-blue-600 hover:underline">
+              View model results
+            </Link>
+          </div>
         </div>
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           <ModelSelect models={models} value={modelKey} onChange={setSelectedModelKey} />
