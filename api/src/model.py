@@ -16,3 +16,10 @@ def _get_classifier(model_key: str):
 def predict_sentiment(text: str, model_key: str) -> dict:
     result = _get_classifier(model_key)(text, truncation=True)[0]
     return {"label": result["label"], "confidence": result["score"]}
+
+
+def predict_sentiment_batch(texts: list[str], model_key: str) -> list[dict]:
+    if not texts:
+        return []
+    results = _get_classifier(model_key)(texts, truncation=True, batch_size=16)
+    return [{"label": result["label"], "confidence": result["score"]} for result in results]

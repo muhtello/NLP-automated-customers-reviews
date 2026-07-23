@@ -67,3 +67,26 @@ class CategoryListItem(BaseModel):
     total_reviews: int
     avg_rating: float
     pct_negative: float
+
+
+class ProductListItem(BaseModel):
+    name: str
+    review_count: int
+    avg_rating: float
+
+
+class ProductAnalyzeRequest(BaseModel):
+    name: str = Field(min_length=1)
+    model: str = DEFAULT_MODEL_KEY
+
+
+class ProductAnalysis(BaseModel):
+    name: str
+    model: str
+    review_count: int
+    sample_size: int
+    avg_rating: float
+    positive_count: int
+    negative_count: int
+    pct_positive: float
+    pct_negative: float

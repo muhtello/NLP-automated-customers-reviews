@@ -10,14 +10,18 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from src.metrics import get_sentiment_metrics
-from src.model import predict_sentiment
+from src.model import predict_sentiment, predict_sentiment_batch
 from src.models_registry import MODEL_REGISTRY, SENTIMENT_EVAL_ROOT, available_model_keys
+from src.products import get_product_reviews, search_products
 from src.schemas import (
     CategoryListItem,
     CategorySummary,
     ModelInfo,
     PredictRequest,
     PredictResponse,
+    ProductAnalysis,
+    ProductAnalyzeRequest,
+    ProductListItem,
     SentimentMetrics,
 )
 from src.summaries_registry import available_slugs, load_summary
@@ -87,3 +91,33 @@ def get_category(slug: str) -> CategorySummary:
     if summary is None:
         raise HTTPException(status_code=404, detail=f"Category '{slug}' not found.")
     return CategorySummary(slug=slug, **summary)
+
+
+@app.get("/products", response_model=list[ProductListItem])
+def list_products(q: str = "") -> list[ProductListItem]:
+    return [ProductListItem(**item) for item in search_products(q)]
+
+
+@app.post("/products/analyze", response_model=ProductAnalysis)
+def analyze_product(request: ProductAnalyzeRequest) -> ProductAnalysis:
+    _require_available(request.model)
+    reviews, total, avg_rating = get_product_reviews(request.name)
+    if total == 0:
+        raise HTTPException(status_code=404, detail=f"Product '{request.name}' has no reviews on file.")
+
+    predictions = predict_sentiment_batch(reviews, request.model)
+    positive_count = sum(1 for p in predictions if p["label"] == "Positive")
+    negative_count = len(predictions) - positive_count
+    sample_size = len(predictions)
+
+    return ProductAnalysis(
+        name=request.name,
+        model=request.model,
+        review_count=total,
+        sample_size=sample_size,
+        avg_rating=avg_rating,
+        positive_count=positive_count,
+        negative_count=negative_count,
+        pct_positive=positive_count / sample_size if sample_size else 0.0,
+        pct_negative=negative_count / sample_size if sample_size else 0.0,
+    )

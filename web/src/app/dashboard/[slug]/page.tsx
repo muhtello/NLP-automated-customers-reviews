@@ -54,20 +54,15 @@ export default function CategoryDetail() {
   }, [slug]);
 
   return (
-    <div className="min-h-screen bg-bg">
-      <header className="border-b border-line bg-surface px-6 py-4">
-        <div className="mx-auto max-w-[1440px]">
-          <Link href="/dashboard" className="text-xs font-medium text-secondary transition-colors hover:text-primary">
-            &larr; Back to dashboard
-          </Link>
-        </div>
-      </header>
+    <div className="flex flex-col gap-6">
+      <Link href="/dashboard" className="w-fit text-xs font-medium text-secondary transition-colors hover:text-primary">
+        &larr; Back to dashboard
+      </Link>
 
-      <main className="mx-auto max-w-[1440px] px-6 py-8">
-        {error && <p className="text-sm text-negative-strong">{error}</p>}
-        {!summary && !error && <p className="font-mono text-xs uppercase tracking-widest text-ink-faint">Loading category...</p>}
+      {error && <p className="text-sm text-negative-strong">{error}</p>}
+      {!summary && !error && <p className="font-mono text-xs uppercase tracking-widest text-ink-faint">Loading category...</p>}
 
-        {summary && (
+      {summary && (
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-[280px_1fr]">
             {/* Sticky sidebar: metadata */}
             <aside className="flex flex-col gap-5 lg:sticky lg:top-8 lg:self-start">
@@ -149,7 +144,6 @@ export default function CategoryDetail() {
             </div>
           </div>
         )}
-      </main>
     </div>
   );
 }
