@@ -15,3 +15,6 @@ torch
 
 # Review summarization (Objective 3)
 openai
+
+# Model sharing (Hugging Face Hub)
+huggingface_hub
