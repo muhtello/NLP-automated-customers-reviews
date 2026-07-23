@@ -20,8 +20,8 @@ export default function ProductThumb({
 
   if (!imageUrl || failed) {
     return (
-      <div className={`flex ${dimension} shrink-0 items-center justify-center border border-line bg-paper`}>
-        <CategoryIcon slug={categorySlug} className="h-1/2 w-1/2 text-ledger-soft" />
+      <div className={`flex ${dimension} shrink-0 items-center justify-center rounded border border-line bg-primary-soft text-primary`}>
+        <CategoryIcon slug={categorySlug} className="h-1/2 w-1/2" />
       </div>
     );
   }
@@ -31,7 +31,7 @@ export default function ProductThumb({
     <img
       src={imageUrl}
       alt={alt}
-      className={`${dimension} shrink-0 border border-line bg-paper object-contain p-1`}
+      className={`${dimension} shrink-0 rounded border border-line bg-surface object-contain p-1`}
       onError={() => setFailed(true)}
     />
   );

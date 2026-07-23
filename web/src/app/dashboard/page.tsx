@@ -10,36 +10,45 @@ export default function Dashboard() {
   const totalReviews = categories.reduce((sum, item) => sum + item.total_reviews, 0);
 
   return (
-    <div className="min-h-screen">
-      <header className="border-b border-line bg-ledger px-6 py-5 text-paper">
-        <div className="mx-auto flex max-w-4xl items-center justify-between">
-          <div className="flex flex-col gap-0.5">
-            <span className="font-display text-[11px] uppercase tracking-[0.2em] text-paper/70">Manifest No. 2026-07</span>
-            <h1 className="font-display text-xl font-semibold tracking-tight">Review Ledger</h1>
+    <div className="min-h-screen bg-bg">
+      <header className="border-b border-line bg-surface px-6 py-4">
+        <div className="mx-auto flex max-w-[1440px] items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-8 w-8 items-center justify-center rounded bg-primary text-sm font-semibold text-white">S</span>
+            <div className="flex flex-col leading-tight">
+              <span className="text-sm font-semibold text-ink">Signal</span>
+              <span className="font-mono text-[10px] uppercase tracking-widest text-ink-faint">Category dashboard</span>
+            </div>
           </div>
-          <Link href="/" className="font-display text-xs uppercase tracking-widest text-paper/80 underline-offset-4 hover:text-paper hover:underline">
-            Sentiment Desk &rarr;
+          <Link
+            href="/"
+            className="rounded border border-line px-3 py-1.5 text-xs font-medium text-secondary transition-colors hover:border-primary/30 hover:text-primary"
+          >
+            Sentiment checker &rarr;
           </Link>
         </div>
       </header>
 
-      <main className="mx-auto flex max-w-4xl flex-col gap-6 p-6">
-        <p className="font-display text-xs uppercase tracking-widest text-ink-soft">
-          {error
-            ? "Ledger unreachable"
-            : categories.length === 0
-              ? "Loading manifest..."
-              : `${totalReviews.toLocaleString()} reviews classified · ${categories.length} categories on file`}
-        </p>
+      <main className="mx-auto flex max-w-[1440px] flex-col gap-6 px-6 py-8">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl font-semibold tracking-tight text-ink">Product categories</h1>
+          <p className="font-mono text-xs uppercase tracking-widest text-ink-faint">
+            {error
+              ? "Dashboard unreachable"
+              : categories.length === 0
+                ? "Loading categories..."
+                : `${totalReviews.toLocaleString()} reviews classified · ${categories.length} categories`}
+          </p>
+        </div>
 
         {error && (
-          <p className="rounded-sm border border-dashed border-stamp-red bg-paper-raised p-4 text-sm text-stamp-red">
-            {error} Start it with <code className="font-display">uvicorn src.main:app --reload</code> from the{" "}
-            <code className="font-display">api/</code> directory.
+          <p className="rounded border border-dashed border-negative bg-negative-soft p-4 text-sm text-negative-strong">
+            {error} Start it with <code className="font-mono">uvicorn src.main:app --reload</code> from the{" "}
+            <code className="font-mono">api/</code> directory.
           </p>
         )}
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {categories.map((item) => (
             <CategoryCard
               key={item.slug}

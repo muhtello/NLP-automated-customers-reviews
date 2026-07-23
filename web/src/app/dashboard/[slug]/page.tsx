@@ -7,7 +7,7 @@ import { useParams } from "next/navigation";
 import ArticleBody from "@/components/ArticleBody/ArticleBody";
 import CategoryIcon from "@/components/CategoryIcon/CategoryIcon";
 import ProductThumb from "@/components/ProductThumb/ProductThumb";
-import StampBadge from "@/components/StampBadge/StampBadge";
+import VerdictBadge from "@/components/VerdictBadge/VerdictBadge";
 
 type ProductStat = {
   name: string;
@@ -48,88 +48,106 @@ export default function CategoryDetail() {
         setError("");
       })
       .catch(() => {
-        setError("This entry is not on file. Is the API running on port 8000?");
+        setError("This category is not on file. Is the API running on port 8000?");
         setSummary(null);
       });
   }, [slug]);
 
   return (
-    <div className="min-h-screen">
-      <header className="border-b border-line bg-ledger px-6 py-4 text-paper">
-        <div className="mx-auto max-w-3xl">
-          <Link href="/dashboard" className="font-display text-xs uppercase tracking-widest text-paper/80 hover:text-paper hover:underline">
-            &larr; Back to ledger
+    <div className="min-h-screen bg-bg">
+      <header className="border-b border-line bg-surface px-6 py-4">
+        <div className="mx-auto max-w-[1440px]">
+          <Link href="/dashboard" className="text-xs font-medium text-secondary transition-colors hover:text-primary">
+            &larr; Back to dashboard
           </Link>
         </div>
       </header>
 
-      <main className="mx-auto flex max-w-3xl flex-col gap-8 p-6">
-        {error && <p className="text-sm text-stamp-red">{error}</p>}
-        {!summary && !error && <p className="font-display text-xs uppercase tracking-widest text-ink-soft">Pulling entry...</p>}
+      <main className="mx-auto max-w-[1440px] px-6 py-8">
+        {error && <p className="text-sm text-negative-strong">{error}</p>}
+        {!summary && !error && <p className="font-mono text-xs uppercase tracking-widest text-ink-faint">Loading category...</p>}
 
         {summary && (
-          <>
-            <section className="flex items-start justify-between gap-6 border-b border-dashed border-line pb-6">
-              <div className="flex flex-col gap-2">
-                <span className="font-display text-[11px] uppercase tracking-[0.2em] text-ink-soft">
-                  Manifest entry &middot; {summary.stats.total_reviews.toLocaleString()} reviews on file
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-[280px_1fr]">
+            {/* Sticky sidebar: metadata */}
+            <aside className="flex flex-col gap-5 lg:sticky lg:top-8 lg:self-start">
+              <div className="flex items-center gap-3">
+                <span className="flex h-11 w-11 items-center justify-center rounded bg-primary-soft text-primary">
+                  <CategoryIcon slug={slug} className="h-6 w-6" />
                 </span>
-                <h1 className="flex items-center gap-3 font-display text-2xl font-semibold tracking-tight text-ink">
-                  <CategoryIcon slug={slug} className="h-7 w-7 text-ledger" />
-                  {summary.stats.category}
-                </h1>
-                <p className="font-display text-xs uppercase tracking-wide text-ink-soft">
-                  Negative rate {(summary.stats.pct_negative * 100).toFixed(1)}%
-                </p>
+                <h1 className="text-xl font-semibold tracking-tight text-ink">{summary.stats.category}</h1>
               </div>
-              <StampBadge avgRating={summary.stats.avg_rating} pctNegative={summary.stats.pct_negative} size="lg" animate />
-            </section>
 
-            <section className="rounded-sm border-l-2 border-ledger bg-paper-raised p-6">
-              <ArticleBody text={summary.article} />
-            </section>
+              <VerdictBadge avgRating={summary.stats.avg_rating} pctNegative={summary.stats.pct_negative} size="lg" animate />
 
-            <section className="flex flex-col gap-3">
-              <h2 className="font-display text-sm font-semibold uppercase tracking-widest text-ink-soft">Top products</h2>
-              {summary.stats.top_products.map((product, index) => (
-                <div key={product.name} className="flex items-center gap-4 border-b border-line py-3 last:border-none">
-                  <span className="w-6 shrink-0 font-display text-sm font-semibold text-ink-soft">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <ProductThumb imageUrl={product.image_url} categorySlug={slug} alt={product.name} />
-                  <div className="flex flex-1 flex-col gap-1">
-                    <p className="text-sm font-medium text-ink">{product.name}</p>
-                    <div className="flex items-center gap-2">
-                      <div className="h-1.5 w-32 overflow-hidden rounded-full bg-line">
-                        <div className="h-full bg-stamp-green" style={{ width: `${(product.avg_rating / 5) * 100}%` }} />
-                      </div>
-                      <span className="font-display text-xs text-ink-soft">
-                        {product.avg_rating.toFixed(2)} &middot; {product.review_count} reviews
-                      </span>
-                    </div>
-                  </div>
+              <dl className="flex flex-col gap-3 rounded border border-line bg-surface p-4 text-sm">
+                <div className="flex items-center justify-between">
+                  <dt className="text-ink-soft">Reviews on file</dt>
+                  <dd className="font-mono font-semibold text-ink">{summary.stats.total_reviews.toLocaleString()}</dd>
                 </div>
-              ))}
-            </section>
+                <div className="flex items-center justify-between border-t border-line pt-3">
+                  <dt className="text-ink-soft">Negative rate</dt>
+                  <dd className="font-mono font-semibold text-negative-strong">
+                    {(summary.stats.pct_negative * 100).toFixed(1)}%
+                  </dd>
+                </div>
+              </dl>
+            </aside>
 
-            {summary.stats.worst_product && (
-              <section className="flex flex-col gap-2">
-                <h2 className="font-display text-sm font-semibold uppercase tracking-widest text-stamp-red">Flagged for return</h2>
-                <div className="flex items-center gap-4 border-l-2 border-stamp-red bg-paper-raised p-4">
-                  <ProductThumb
-                    imageUrl={summary.stats.worst_product.image_url}
-                    categorySlug={slug}
-                    alt={summary.stats.worst_product.name}
-                    size="sm"
-                  />
-                  <p className="flex-1 text-sm font-medium text-ink">{summary.stats.worst_product.name}</p>
-                  <span className="font-display text-xs text-ink-soft">
-                    {summary.stats.worst_product.avg_rating.toFixed(2)} &middot; {summary.stats.worst_product.review_count} reviews
-                  </span>
+            {/* Main column: article + products */}
+            <div className="flex flex-col gap-8">
+              <section className="glass-panel rounded p-6">
+                <span className="mb-3 flex items-center gap-1.5 font-mono text-[10px] font-semibold uppercase tracking-widest text-primary">
+                  <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-primary" />
+                  AI-generated summary
+                </span>
+                <ArticleBody text={summary.article} />
+              </section>
+
+              <section className="flex flex-col gap-3">
+                <h2 className="text-sm font-semibold uppercase tracking-widest text-ink-soft">Top products</h2>
+                <div className="flex flex-col divide-y divide-line rounded border border-line bg-surface">
+                  {summary.stats.top_products.map((product, index) => (
+                    <div key={product.name} className="flex items-center gap-4 p-4">
+                      <span className="w-6 shrink-0 font-mono text-sm font-semibold text-ink-faint">
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+                      <ProductThumb imageUrl={product.image_url} categorySlug={slug} alt={product.name} />
+                      <div className="flex flex-1 flex-col gap-1">
+                        <p className="text-sm font-medium text-ink">{product.name}</p>
+                        <div className="flex items-center gap-2">
+                          <div className="h-1 w-32 overflow-hidden rounded-full bg-neutral-soft">
+                            <div className="h-full bg-positive" style={{ width: `${(product.avg_rating / 5) * 100}%` }} />
+                          </div>
+                          <span className="font-mono text-xs text-ink-faint">
+                            {product.avg_rating.toFixed(2)} &middot; {product.review_count} reviews
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </section>
-            )}
-          </>
+
+              {summary.stats.worst_product && (
+                <section className="flex flex-col gap-3">
+                  <h2 className="text-sm font-semibold uppercase tracking-widest text-negative-strong">Worst rated</h2>
+                  <div className="flex items-center gap-4 rounded border border-negative/20 bg-negative-soft p-4">
+                    <ProductThumb
+                      imageUrl={summary.stats.worst_product.image_url}
+                      categorySlug={slug}
+                      alt={summary.stats.worst_product.name}
+                      size="sm"
+                    />
+                    <p className="flex-1 text-sm font-medium text-ink">{summary.stats.worst_product.name}</p>
+                    <span className="font-mono text-xs text-ink-faint">
+                      {summary.stats.worst_product.avg_rating.toFixed(2)} &middot; {summary.stats.worst_product.review_count} reviews
+                    </span>
+                  </div>
+                </section>
+              )}
+            </div>
+          </div>
         )}
       </main>
     </div>

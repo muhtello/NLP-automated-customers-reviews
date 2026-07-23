@@ -1,43 +1,83 @@
 @import "tailwindcss";
 
 @theme {
-  --color-paper: #ece9e1;
-  --color-paper-raised: #f7f5ef;
-  --color-ink: #1c1b18;
-  --color-ink-soft: #5b584e;
-  --color-ledger: #23414a;
-  --color-ledger-soft: #4a6169;
-  --color-stamp-green: #3f6b4c;
-  --color-stamp-red: #a63a2e;
-  --color-stamp-amber: #a9762c;
-  --color-line: #d8d2c2;
+  /* Surfaces */
+  --color-bg: #f8fafc;
+  --color-surface: #ffffff;
+  --color-surface-sunken: #eef1f6;
 
-  --font-display: var(--font-plex-mono);
-  --font-body: var(--font-plex-sans);
+  /* Text */
+  --color-ink: #101322;
+  --color-ink-soft: #475569;
+  --color-ink-faint: #94a3b8;
+
+  /* Brand */
+  --color-primary: #2e3a8c;
+  --color-primary-strong: #142175;
+  --color-primary-soft: #eef0fb;
+  --color-secondary: #64748b;
+
+  /* Sentiment */
+  --color-positive: #10b981;
+  --color-positive-soft: #e6faf3;
+  --color-positive-strong: #047857;
+  --color-negative: #fb7185;
+  --color-negative-soft: #fff0f2;
+  --color-negative-strong: #be123c;
+  --color-neutral-tone: #94a3b8;
+  --color-neutral-soft: #f1f5f9;
+
+  /* Lines & glass */
+  --color-line: #e2e8f0;
+  --color-glass: rgb(255 255 255 / 0.6);
+  --color-glass-border: rgb(255 255 255 / 0.5);
+
+  --font-display: var(--font-inter);
+  --font-body: var(--font-inter);
+  --font-mono: var(--font-jetbrains-mono);
+
+  --radius-badge: 0.75rem;
 }
 
-@keyframes stamp-down {
+@keyframes fade-up {
   0% {
     opacity: 0;
-    transform: translateY(-14px) scale(1.3) rotate(-8deg);
-  }
-  60% {
-    opacity: 1;
-    transform: translateY(2px) scale(0.96) rotate(-9deg);
+    transform: translateY(6px);
   }
   100% {
     opacity: 1;
-    transform: translateY(0) scale(1) rotate(-8deg);
+    transform: translateY(0);
   }
 }
 
-.animate-stamp-down {
-  animation: stamp-down 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+.animate-fade-up {
+  animation: fade-up 0.35s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.animate-pulse-dot {
+  animation: pulse-dot 1.1s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-stamp-down {
+  .animate-fade-up,
+  .animate-pulse-dot {
     animation: none;
-    transform: rotate(-8deg);
   }
+}
+
+.glass-panel {
+  background: var(--color-glass);
+  border: 1px solid var(--color-glass-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }

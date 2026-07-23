@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import ModelSelect from "@/components/ModelSelect/ModelSelect";
@@ -52,55 +53,69 @@ export default function Results() {
     : [];
 
   return (
-    <div className="mx-auto flex max-w-2xl flex-col gap-6 p-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Sentiment Model Results</h1>
-        <ModelSelect models={models} value={modelKey} onChange={setSelectedModelKey} />
-      </div>
+    <div className="min-h-screen bg-bg">
+      <header className="border-b border-line bg-surface px-6 py-4">
+        <div className="mx-auto flex max-w-2xl items-center justify-between">
+          <Link href="/" className="text-xs font-medium text-secondary transition-colors hover:text-primary">
+            &larr; Sentiment checker
+          </Link>
+        </div>
+      </header>
 
-      {(error || modelsError) && <p className="text-red-600">{error || modelsError}</p>}
-      {!metrics && !error && !modelsError && <p>Loading...</p>}
+      <main className="mx-auto flex max-w-2xl flex-col gap-6 px-6 py-8">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-semibold tracking-tight text-ink">Model results</h1>
+          <ModelSelect models={models} value={modelKey} onChange={setSelectedModelKey} />
+        </div>
 
-      {metrics && (
-        <>
-          <p>
-            Overall accuracy: <strong>{pct(metrics.accuracy)}</strong> on the held-out test set.
-          </p>
+        {(error || modelsError) && <p className="text-sm text-negative-strong">{error || modelsError}</p>}
+        {!metrics && !error && !modelsError && <p className="font-mono text-xs uppercase tracking-widest text-ink-faint">Loading...</p>}
 
-          <table className="w-full border-collapse text-left">
-            <thead>
-              <tr className="border-b border-gray-300">
-                <th className="py-2">Class</th>
-                <th className="py-2">Precision</th>
-                <th className="py-2">Recall</th>
-                <th className="py-2">F1-score</th>
-                <th className="py-2">Support</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map(([name, row]) => (
-                <tr key={name} className="border-b border-gray-200">
-                  <td className="py-2 font-medium">{name}</td>
-                  <td className="py-2">{pct(row.precision)}</td>
-                  <td className="py-2">{pct(row.recall)}</td>
-                  <td className="py-2">{pct(row["f1-score"])}</td>
-                  <td className="py-2">{row.support}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        {metrics && (
+          <>
+            <div className="rounded border border-line bg-surface p-5">
+              <p className="text-xs uppercase tracking-widest text-ink-faint">Overall accuracy</p>
+              <p className="font-mono text-3xl font-semibold text-primary">{pct(metrics.accuracy)}</p>
+              <p className="mt-1 text-sm text-ink-soft">on the held-out test set</p>
+            </div>
 
-          <div>
-            <h2 className="mb-2 text-lg font-medium">Confusion Matrix</h2>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={`${process.env.NEXT_PUBLIC_API_BASE_URL}${metrics.confusion_matrix_url}`}
-              alt="Confusion matrix"
-              className="max-w-full rounded border border-gray-200"
-            />
-          </div>
-        </>
-      )}
+            <div className="overflow-hidden rounded border border-line bg-surface">
+              <table className="w-full border-collapse text-left text-sm">
+                <thead>
+                  <tr className="border-b border-line bg-surface-sunken">
+                    <th className="px-4 py-2.5 font-medium text-ink-soft">Class</th>
+                    <th className="px-4 py-2.5 font-medium text-ink-soft">Precision</th>
+                    <th className="px-4 py-2.5 font-medium text-ink-soft">Recall</th>
+                    <th className="px-4 py-2.5 font-medium text-ink-soft">F1-score</th>
+                    <th className="px-4 py-2.5 font-medium text-ink-soft">Support</th>
+                  </tr>
+                </thead>
+                <tbody className="font-mono">
+                  {rows.map(([name, row]) => (
+                    <tr key={name} className="border-b border-line last:border-none">
+                      <td className="px-4 py-2.5 font-sans font-medium text-ink">{name}</td>
+                      <td className="px-4 py-2.5 text-ink-soft">{pct(row.precision)}</td>
+                      <td className="px-4 py-2.5 text-ink-soft">{pct(row.recall)}</td>
+                      <td className="px-4 py-2.5 text-ink-soft">{pct(row["f1-score"])}</td>
+                      <td className="px-4 py-2.5 text-ink-soft">{row.support}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div>
+              <h2 className="mb-2 text-sm font-semibold uppercase tracking-widest text-ink-soft">Confusion matrix</h2>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`${process.env.NEXT_PUBLIC_API_BASE_URL}${metrics.confusion_matrix_url}`}
+                alt="Confusion matrix"
+                className="max-w-full rounded border border-line"
+              />
+            </div>
+          </>
+        )}
+      </main>
     </div>
   );
 }

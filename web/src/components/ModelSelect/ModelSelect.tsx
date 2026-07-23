@@ -11,7 +11,7 @@ export default function ModelSelect({ models, value, onChange }: ModelSelectProp
     <select
       value={value}
       onChange={(event) => onChange(event.target.value)}
-      className="rounded border border-gray-300 p-2 text-sm"
+      className="rounded border border-line bg-surface px-3 py-2 text-sm text-ink outline-none transition-colors focus:border-2 focus:border-primary"
     >
       {models.map((model) => (
         <option key={model.key} value={model.key}>

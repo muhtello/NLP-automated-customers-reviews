@@ -27,7 +27,7 @@ export default function ArticleBody({ text }: { text: string }) {
   function flushList(key: number) {
     if (listBuffer.length === 0) return;
     blocks.push(
-      <ul key={`list-${key}`} className="flex list-none flex-col gap-1.5 border-l-2 border-line pl-4">
+      <ul key={`list-${key}`} className="flex list-none flex-col gap-1.5 border-l-2 border-primary/20 pl-4">
         {listBuffer.map((item, index) => (
           <li key={index} className="text-[15px] leading-relaxed text-ink-soft">
             {renderInlineNodes(item)}
@@ -46,11 +46,11 @@ export default function ArticleBody({ text }: { text: string }) {
       const content = line.replace(/^#{3,4}\s+/, "");
       blocks.push(
         level === 3 ? (
-          <h3 key={index} className="mt-2 font-display text-lg font-semibold tracking-tight text-ledger">
+          <h3 key={index} className="mt-2 text-lg font-semibold tracking-tight text-primary">
             {content}
           </h3>
         ) : (
-          <h4 key={index} className="mt-1 font-display text-sm font-semibold uppercase tracking-widest text-ledger-soft">
+          <h4 key={index} className="mt-1 font-mono text-xs font-semibold uppercase tracking-widest text-secondary">
             {content}
           </h4>
         ),
