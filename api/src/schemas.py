@@ -101,7 +101,36 @@ class ChatRequest(BaseModel):
     message: str = Field(min_length=1)
     category_slug: str | None = None
     history: list[ChatMessage] = []
+    mode: str = "recommender"  # "recommender" | "anti_recommender"
+
+
+class ReviewSample(BaseModel):
+    rating: float
+    text: str
+
+
+class ProductComparison(BaseModel):
+    name: str
+    review_count: int
+    avg_rating: float
+    best_review: ReviewSample
+    worst_review: ReviewSample
+
+
+class RankedProduct(BaseModel):
+    name: str
+    avg_rating: float
+    review_count: int
+    pct_negative: float
+
+
+class ProductRanking(BaseModel):
+    category: str | None
+    order: str  # "best" | "worst"
+    products: list[RankedProduct]
 
 
 class ChatResponse(BaseModel):
     reply: str
+    product_comparison: ProductComparison | None = None
+    product_ranking: ProductRanking | None = None

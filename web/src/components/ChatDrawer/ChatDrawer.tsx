@@ -4,12 +4,13 @@ import { useState } from "react";
 import { usePathname } from "next/navigation";
 
 import ChatAvatar from "@/components/ChatAvatar/ChatAvatar";
+import ChatMessageBubble, { type ChatMessage } from "@/components/ChatMessageBubble/ChatMessageBubble";
+import ChatModeToggle, { type ChatMode } from "@/components/ChatModeToggle/ChatModeToggle";
 import { useCategories } from "@/lib/useCategories";
 
-type Message = { from: "user" | "ai"; text: string };
 type ApiRole = "user" | "assistant";
 
-const OPENING: Message[] = [
+const OPENING: ChatMessage[] = [
   {
     from: "ai",
     text: "Ask me about a category, a product, or a sentiment trend and I'll point you to the right dashboard view.",
@@ -25,10 +26,11 @@ function slugFromPathname(pathname: string): string | null {
 }
 
 export default function ChatDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const [messages, setMessages] = useState<Message[]>(OPENING);
+  const [messages, setMessages] = useState<ChatMessage[]>(OPENING);
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
+  const [mode, setMode] = useState<ChatMode>("recommender");
 
   const pathname = usePathname();
   const { categories } = useCategories();
@@ -51,11 +53,19 @@ export default function ChatDrawer({ open, onClose }: { open: boolean; onClose: 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text, category_slug: categorySlug, history }),
+        body: JSON.stringify({ message: text, category_slug: categorySlug, history, mode }),
       });
       if (!response.ok) throw new Error(`Request failed: ${response.status}`);
       const data = await response.json();
-      setMessages((prev) => [...prev, { from: "ai", text: data.reply }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          from: "ai",
+          text: data.reply,
+          productComparison: data.product_comparison ?? undefined,
+          productRanking: data.product_ranking ?? undefined,
+        },
+      ]);
     } catch {
       setError("Could not reach the assistant. Is the API running on port 8000?");
     } finally {
@@ -83,21 +93,11 @@ export default function ChatDrawer({ open, onClose }: { open: boolean; onClose: 
           </button>
         </div>
 
+        <ChatModeToggle mode={mode} onChange={setMode} />
+
         <div className="flex flex-1 flex-col gap-3 overflow-y-auto pr-1">
           {messages.map((message, index) => (
-            <div
-              key={index}
-              className={`flex items-end gap-2 ${message.from === "user" ? "flex-row-reverse text-right" : ""}`}
-            >
-              <ChatAvatar from={message.from} />
-              <p
-                className={`max-w-[80%] rounded-lg p-3 text-sm shadow-sm ${
-                  message.from === "ai" ? "glass-panel rounded-bl-none text-ink" : "rounded-br-none bg-primary text-white"
-                }`}
-              >
-                {message.text}
-              </p>
-            </div>
+            <ChatMessageBubble key={index} message={message} />
           ))}
           {sending && (
             <div className="flex items-end gap-2">
