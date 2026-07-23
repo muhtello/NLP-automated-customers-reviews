@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 
-import { ChatIcon } from "@/components/AppShell/navIcons";
+import ChatAvatar from "@/components/ChatAvatar/ChatAvatar";
 import { useCategories } from "@/lib/useCategories";
 
 type Message = { from: "user" | "ai"; text: string };
@@ -87,21 +87,28 @@ export default function ChatDrawer({ open, onClose }: { open: boolean; onClose: 
           {messages.map((message, index) => (
             <div
               key={index}
-              className={`flex gap-2 ${message.from === "user" ? "flex-row-reverse text-right" : ""}`}
+              className={`flex items-end gap-2 ${message.from === "user" ? "flex-row-reverse text-right" : ""}`}
             >
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary">
-                {message.from === "ai" ? <ChatIcon className="h-3.5 w-3.5" /> : <span className="text-xs font-semibold">You</span>}
-              </span>
+              <ChatAvatar from={message.from} />
               <p
-                className={`max-w-[80%] rounded-lg p-3 text-sm ${
-                  message.from === "ai" ? "glass-panel rounded-tl-none text-ink" : "rounded-tr-none bg-primary text-white"
+                className={`max-w-[80%] rounded-lg p-3 text-sm shadow-sm ${
+                  message.from === "ai" ? "glass-panel rounded-bl-none text-ink" : "rounded-br-none bg-primary text-white"
                 }`}
               >
                 {message.text}
               </p>
             </div>
           ))}
-          {sending && <p className="font-mono text-[10px] uppercase tracking-widest text-ink-faint">Thinking...</p>}
+          {sending && (
+            <div className="flex items-end gap-2">
+              <ChatAvatar from="ai" />
+              <span className="glass-panel flex items-center gap-1 rounded-lg rounded-bl-none p-3 shadow-sm">
+                <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-primary/60" style={{ animationDelay: "0ms" }} />
+                <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-primary/60" style={{ animationDelay: "160ms" }} />
+                <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-primary/60" style={{ animationDelay: "320ms" }} />
+              </span>
+            </div>
+          )}
           {error && <p className="text-xs text-negative-strong">{error}</p>}
         </div>
 

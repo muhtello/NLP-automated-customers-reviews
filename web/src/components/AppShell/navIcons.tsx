@@ -59,3 +59,13 @@ export function ChatIcon({ className }: IconProps) {
     className,
   );
 }
+
+export function PersonIcon({ className }: IconProps) {
+  return base(
+    <>
+      <circle cx="12" cy="8.3" r="3.3" />
+      <path d="M5 20c0-3.6 3.1-6.2 7-6.2s7 2.6 7 6.2" />
+    </>,
+    className,
+  );
+}
