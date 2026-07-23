@@ -17,6 +17,12 @@ MODEL_REGISTRY: dict[str, str] = {
 
 DEFAULT_MODEL_KEY = "bert"
 
+# Models served from a private Hugging Face Hub repo instead of a local
+# ml/outputs/ checkout (requires HF_TOKEN in api/.env for private repos).
+HF_HUB_REPO_IDS: dict[str, str] = {
+    "cardiffnlp-twitter": "holder212/Consumer_Reviews_of_Amazon_Products_May19",
+}
+
 _ML_OUTPUTS_DIR = Path(__file__).resolve().parents[2] / "ml" / "outputs"
 SENTIMENT_EVAL_ROOT = _ML_OUTPUTS_DIR / "sentiment_eval"
 
