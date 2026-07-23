@@ -8,7 +8,7 @@ responses, not whether gpt-4o-mini picks the right tool for a given phrasing.
 import json
 from types import SimpleNamespace
 
-from src.chatbot_engine import PERSONA_PROMPTS, SUMMARY_TRIGGER_LENGTH, ChatEngine
+from src.chatbot_engine import PERSONA_PROMPTS, PERSONA_REMINDERS, SUMMARY_TRIGGER_LENGTH, ChatEngine
 from src.schemas import ChatMessage
 
 
@@ -84,9 +84,26 @@ def test_reply_handles_tool_call_and_category_hint_handoff() -> None:
 
     assert result["reply"] == "Here are some audio products."
     assert len(fake_client.calls) == 2
-    tool_message = fake_client.calls[1]["messages"][-1]
-    assert tool_message["role"] == "tool"
+    final_messages = fake_client.calls[1]["messages"]
+    tool_message = next(message for message in final_messages if message["role"] == "tool")
     assert "matched_category" in tool_message["content"]
+    # The persona reminder should be the last message before the final completion call, so it
+    # has the most influence over tone even after tool data has entered the context.
+    assert final_messages[-1]["role"] == "system"
+
+
+def test_persona_reminder_differs_by_mode_after_a_tool_call() -> None:
+    fake_client = FakeClient(
+        [
+            _message(tool_calls=[_tool_call("rank_products", {"order": "best", "limit": 3, "category": "all"})]),
+            _message(content="ok"),
+        ]
+    )
+    engine = _engine_with(fake_client)
+    engine.reply("give me the best products", None, [], mode="anti_recommender")
+
+    reminder = fake_client.calls[1]["messages"][-1]["content"]
+    assert PERSONA_REMINDERS["anti_recommender"] == reminder
 
 
 def test_reply_reuses_existing_summary_without_extra_call() -> None:

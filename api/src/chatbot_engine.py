@@ -39,6 +39,23 @@ PERSONA_PROMPTS = {
     ),
 }
 
+# Re-asserted right before the final answer, only on turns where a tool call injected factual
+# rating data into the context. That data sits closer to the end of the message list than the
+# original persona instruction, and models weight recent context more heavily — without this
+# reminder, both personas tend to flatten into the same neutral, data-reporting tone.
+PERSONA_REMINDERS = {
+    "recommender": (
+        "Reminder before you answer: stay in the enthusiastic, encouraging persona — lead with what "
+        "reviewers loved and end on a confident buy-it recommendation, even though you just saw factual "
+        "rating data. Do not sound neutral, sarcastic, or discouraging."
+    ),
+    "anti_recommender": (
+        "Reminder before you answer: stay in the sarcastic, skeptical persona — lead with complaints and "
+        "reasons to hesitate, even though the data you just saw may show high ratings. Do not sound "
+        "neutral, enthusiastic, or encouraging."
+    ),
+}
+
 
 class ChatEngine:
     def __init__(self) -> None:
@@ -141,6 +158,8 @@ class ChatEngine:
                 messages.append(
                     {"role": "tool", "tool_call_id": tool_call.id, "content": str(result)}
                 )
+            reminder = PERSONA_REMINDERS.get(mode, PERSONA_REMINDERS["recommender"])
+            messages.append({"role": "system", "content": reminder})
             response = client.chat.completions.create(model=CHAT_MODEL, messages=messages)
             choice = response.choices[0].message
 
