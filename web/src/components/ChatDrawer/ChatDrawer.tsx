@@ -1,10 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 
 import { ChatIcon } from "@/components/AppShell/navIcons";
+import { useCategories } from "@/lib/useCategories";
 
 type Message = { from: "user" | "ai"; text: string };
+type ApiRole = "user" | "assistant";
 
 const OPENING: Message[] = [
   {
@@ -13,18 +16,51 @@ const OPENING: Message[] = [
   },
 ];
 
-const CANNED_REPLY =
-  "This is a UI preview of the assistant — wire it up to a live model when the summarization endpoint is ready. For now, browse Clustering and Sentiment for real data.";
+function slugFromPathname(pathname: string): string | null {
+  const match = pathname.match(/^\/dashboard\/([^/]+)$/);
+  if (!match) return null;
+  const [, slug] = match;
+  if (["sentiment", "clustering", "products"].includes(slug)) return null;
+  return slug;
+}
 
 export default function ChatDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [messages, setMessages] = useState<Message[]>(OPENING);
   const [draft, setDraft] = useState("");
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
 
-  function send() {
+  const pathname = usePathname();
+  const { categories } = useCategories();
+  const categorySlug = slugFromPathname(pathname) ?? categories[0]?.slug ?? null;
+
+  async function send() {
     const text = draft.trim();
-    if (text === "") return;
-    setMessages((prev) => [...prev, { from: "user", text }, { from: "ai", text: CANNED_REPLY }]);
+    if (text === "" || sending) return;
+
+    const history = messages
+      .filter((message) => message !== OPENING[0])
+      .map((message) => ({ role: (message.from === "ai" ? "assistant" : "user") as ApiRole, content: message.text }));
+
+    setMessages((prev) => [...prev, { from: "user", text }]);
     setDraft("");
+    setSending(true);
+    setError("");
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text, category_slug: categorySlug, history }),
+      });
+      if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+      const data = await response.json();
+      setMessages((prev) => [...prev, { from: "ai", text: data.reply }]);
+    } catch {
+      setError("Could not reach the assistant. Is the API running on port 8000?");
+    } finally {
+      setSending(false);
+    }
   }
 
   return (
@@ -38,7 +74,9 @@ export default function ChatDrawer({ open, onClose }: { open: boolean; onClose: 
         <div className="mb-5 flex items-start justify-between">
           <div>
             <h2 className="text-lg font-semibold tracking-tight text-primary">Research assistant</h2>
-            <p className="text-xs text-ink-soft">UI preview &middot; not wired to a model yet</p>
+            <p className="text-xs text-ink-soft">
+              {categorySlug ? `Context: ${categorySlug}` : "No category selected"}
+            </p>
           </div>
           <button onClick={onClose} className="text-ink-soft transition-colors hover:text-primary" aria-label="Close chat">
             &times;
@@ -63,6 +101,8 @@ export default function ChatDrawer({ open, onClose }: { open: boolean; onClose: 
               </p>
             </div>
           ))}
+          {sending && <p className="font-mono text-[10px] uppercase tracking-widest text-ink-faint">Thinking...</p>}
+          {error && <p className="text-xs text-negative-strong">{error}</p>}
         </div>
 
         <div className="mt-4 flex items-center gap-2 border-t border-line pt-4">
@@ -71,11 +111,13 @@ export default function ChatDrawer({ open, onClose }: { open: boolean; onClose: 
             onChange={(event) => setDraft(event.target.value)}
             onKeyDown={(event) => event.key === "Enter" && send()}
             placeholder="Ask about the reviews..."
-            className="flex-1 rounded-full border border-line bg-surface px-4 py-2 text-sm text-ink outline-none focus:border-primary"
+            disabled={sending}
+            className="flex-1 rounded-full border border-line bg-surface px-4 py-2 text-sm text-ink outline-none focus:border-primary disabled:opacity-60"
           />
           <button
             onClick={send}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-white transition-colors hover:bg-primary-strong"
+            disabled={sending}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-white transition-colors hover:bg-primary-strong disabled:opacity-60"
             aria-label="Send message"
           >
             &rarr;

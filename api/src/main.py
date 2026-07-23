@@ -5,10 +5,14 @@ Usage:
 Run from the `api/` directory.
 """
 
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
+load_dotenv()
+
+from src.chatbot_engine import ChatEngine
 from src.metrics import get_sentiment_metrics
 from src.model import predict_sentiment, predict_sentiment_batch
 from src.models_registry import MODEL_REGISTRY, SENTIMENT_EVAL_ROOT, available_model_keys
@@ -16,6 +20,8 @@ from src.products import get_product_reviews, search_products
 from src.schemas import (
     CategoryListItem,
     CategorySummary,
+    ChatRequest,
+    ChatResponse,
     ModelInfo,
     PredictRequest,
     PredictResponse,
@@ -27,6 +33,7 @@ from src.schemas import (
 from src.summaries_registry import available_slugs, load_summary
 
 app = FastAPI(title="Customer Reviews API")
+chat_engine = ChatEngine()
 
 app.add_middleware(
     CORSMiddleware,
@@ -96,6 +103,17 @@ def get_category(slug: str) -> CategorySummary:
 @app.get("/products", response_model=list[ProductListItem])
 def list_products(q: str = "") -> list[ProductListItem]:
     return [ProductListItem(**item) for item in search_products(q)]
+
+
+@app.post("/api/chat", response_model=ChatResponse)
+def chat(request: ChatRequest) -> ChatResponse:
+    if request.category_slug is not None and request.category_slug not in available_slugs():
+        raise HTTPException(status_code=404, detail=f"Category '{request.category_slug}' not found.")
+    try:
+        reply = chat_engine.reply(request.message, request.category_slug, request.history)
+    except RuntimeError as error:
+        raise HTTPException(status_code=503, detail=str(error)) from error
+    return ChatResponse(reply=reply)
 
 
 @app.post("/products/analyze", response_model=ProductAnalysis)

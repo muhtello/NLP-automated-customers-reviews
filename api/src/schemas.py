@@ -90,3 +90,18 @@ class ProductAnalysis(BaseModel):
     negative_count: int
     pct_positive: float
     pct_negative: float
+
+
+class ChatMessage(BaseModel):
+    role: str
+    content: str
+
+
+class ChatRequest(BaseModel):
+    message: str = Field(min_length=1)
+    category_slug: str | None = None
+    history: list[ChatMessage] = []
+
+
+class ChatResponse(BaseModel):
+    reply: str
