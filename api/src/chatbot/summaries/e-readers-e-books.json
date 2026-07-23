@@ -1,0 +1,47 @@
+{
+  "stats": {
+    "category": "E-Readers & E-Books",
+    "total_reviews": 6876,
+    "avg_rating": 4.66,
+    "pct_negative": 0.022,
+    "top_products": [
+      {
+        "name": "Kindle Paperwhite",
+        "avg_rating": 4.89,
+        "review_count": 9,
+        "pct_negative": 0.0,
+        "sample_complaints": [],
+        "image_url": null
+      },
+      {
+        "name": "Amazon Fire Kids Edition Tablet",
+        "avg_rating": 4.83,
+        "review_count": 6,
+        "pct_negative": 0.0,
+        "sample_complaints": [],
+        "image_url": null
+      },
+      {
+        "name": "Kindle PowerFast International Charging Kit (for accelerated charging in over 200 countries)",
+        "avg_rating": 4.8,
+        "review_count": 5,
+        "pct_negative": 0.0,
+        "sample_complaints": [],
+        "image_url": "https://images-na.ssl-images-amazon.com/images/I/41rtUlc6vmL._SS40_.jpg"
+      }
+    ],
+    "worst_product": {
+      "name": "Amazon Kindle Replacement Power Adapter (Fits Latest Generation Kindle and Kindle DX) For shipment in the U.S only",
+      "avg_rating": 2.8,
+      "review_count": 5,
+      "pct_negative": 0.6,
+      "sample_complaints": [
+        "I was initially happy that my Kindle replacement charging cord arrived so promptly, it seemed to work fine. But after only one use, the outer covering of the cord started cracking falling off in bits. It now is almost completely covered by electrical tape, as the bits fall off w/ each every use. I will end up having to buy a new one after all...",
+        "I purchased my Kindle2 in March of 09 - and it came with this adapter and cord. It is now October 09, and the small part of the adapter for this cord has stopped working. Fortunately, I was able to plug the CORD part into my laptop's USB port, and charge the Kindle that way. While plugged into a wall socket using Amazon's adapter, it does not charge at all (no light, no charge, no nothin'). I tried using the USB/Power adapter for my iPod, but the charge light blinked intermittently, and it seemed to drain the Kindle's battery. I have only had this for 9 months. I think the adapter should last longer than that. Preferably, Amazon could/should have come up with an interface that allows the use of adapters we already have - like for our phones or iPods. It's not rocket science... but it IS marketing. I came online to purchase the replacement, but I'm not sure I want to buy the same thing.... I have both the original Kindle and the Kindle2, and I love the product, but with this adapter, I have to ask.... Why",
+        "Can someone explain to me why I can find hundreds and hundreds of people with this disintegrating isulation on charging cord problem, but not ONE post from Amazon with an official Company Statement about these defective, inferior, slave-labor built, imported, crap charging cablesAnyoneI'll be you dollars to donuts that these 100s of complains will bloom into 10s of thousands, as the existing, bad cables mature. (dry out, degrade, undergo radioactive decay, whatever their issue is). I'll bet I'll win!"
+      ],
+      "image_url": "https://images-na.ssl-images-amazon.com/images/I/71Q5qZpl4wS._SL1500_.jpg"
+    }
+  },
+  "article": "### E-Readers & E-Books: Top Recommendations\n\nIf you’re in the market for an e-reader or tablet, you’ll want to consider the top picks that stand out based on user ratings and feedback. \n\n#### Top Picks\n1. **Kindle Paperwhite**\n   - **Average Rating:** 4.89 / 5.0 (9 reviews)\n   - The Kindle Paperwhite leads the pack with the highest average rating and a commendable number of reviews, showcasing its popularity and reliability among users.\n\n2. **Amazon Fire Kids Edition Tablet**\n   - **Average Rating:** 4.83 / 5.0 (6 reviews)\n   - Close on its heels is the Amazon Fire Kids Edition Tablet, which offers a robust experience for younger readers and families.\n\n3. **Kindle PowerFast International Charging Kit**\n   - **Average Rating:** 4.8 / 5.0 (5 reviews)\n   - This charging kit is ideal for those who travel frequently, providing accelerated charging in over 200 countries, and maintains a strong rating with fewer reviews.\n\nWhile all three products boast excellent ratings and zero recorded complaints, the Kindle Paperwhite stands out for its combination of high satisfaction and a broader user base.\n\n#### What Reviewers Complain About\n- **Kindle Paperwhite:** Reviewers had few complaints, indicating overall satisfaction with the device and its features.\n- **Amazon Fire Kids Edition Tablet:** Similarly, reviewers reported few complaints, suggesting a positive experience with the tablet’s functionality and suitability for children.\n- **Kindle PowerFast International Charging Kit:** This product also had no recorded complaints, reinforcing its value for international travelers.\n\n#### One to Avoid\n- **Amazon Kindle Replacement Power Adapter**\n  - **Average Rating:** 2.8 / 5.0 (5 reviews)\n  - This product is best avoided due to significant issues reported by users. Complaints include the adapter becoming non-functional after minimal use, with some users experiencing deterioration of the charging cord's insulation. Many found themselves needing to purchase replacements shortly after their initial purchase, indicating a troubling trend in quality.\n\nIn summary, for anyone seeking reliable e-readers and tablets, the Kindle Paperwhite, Amazon Fire Kids Edition Tablet, and Kindle PowerFast International Charging Kit are excellent choices. Conversely, steer clear of the Amazon Kindle Replacement Power Adapter to avoid potential frustrations."
+}
