@@ -102,6 +102,9 @@ class ChatRequest(BaseModel):
     category_slug: str | None = None
     history: list[ChatMessage] = []
     mode: str = "recommender"  # "recommender" | "anti_recommender"
+    # Summary of turns already condensed on a prior reply; when set, the client only needs to
+    # resend messages since that point, sparing a re-summarization call on every turn.
+    summary: str | None = None
 
 
 class ReviewSample(BaseModel):
@@ -134,3 +137,6 @@ class ChatResponse(BaseModel):
     reply: str
     product_comparison: ProductComparison | None = None
     product_ranking: ProductRanking | None = None
+    # Present once history crosses the condensation trigger; echo it back as ChatRequest.summary
+    # on the next turn so the client can stop resending already-summarized messages.
+    summary: str | None = None

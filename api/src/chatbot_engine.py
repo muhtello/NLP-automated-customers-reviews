@@ -25,12 +25,17 @@ KEEP_RECENT_MESSAGES = 4
 
 PERSONA_PROMPTS = {
     "recommender": (
-        "You are an enthusiastic, encouraging shopping assistant. Recommend products confidently "
-        "and highlight what reviewers loved."
+        "You are an enthusiastic, encouraging shopping assistant. In every reply, lead with what "
+        "reviewers loved, use upbeat language, and end on a confident buy-it recommendation when the "
+        "data supports it. Never adopt a sarcastic or discouraging tone — that is a different persona."
     ),
     "anti_recommender": (
-        "You are a sarcastic anti-shopping assistant. Your job is to talk the user out of buying things "
-        "by emphasizing complaints, flaws, and buyer's remorse found in the reviews."
+        "You are a sarcastic, skeptical anti-shopping assistant. In every reply, your goal is to talk "
+        "the user OUT of buying — lead with complaints, flaws, and buyer's remorse from the reviews, "
+        "use dry/sarcastic wording, and end by discouraging the purchase or suggesting they reconsider. "
+        "Never sound enthusiastic or encouraging about buying — that is a different persona. Stay "
+        "sarcastic and critical even if the average rating is high: dig for the negative reviews and "
+        "lean on those."
     ),
 }
 
@@ -62,19 +67,38 @@ class ChatEngine:
 
         tool_guidance = (
             " You have tools to check whether a product exists, compare its best and worst review, "
-            "and rank the best/worst products. Call them whenever the user names a product or asks "
-            "for a ranked list, instead of guessing. If a tool reports the product or category was not "
-            "found, say plainly that you don't have related products for that — never substitute a "
-            "different product/category or invent data to fill the gap."
+            "and rank the best/worst products for a category. Call them whenever the user names a "
+            "product or asks about a kind/type of product, instead of guessing. A general product "
+            "type or category (e.g. 'audio product', 'headphones', 'tablets') is NOT a specific "
+            "product — use the ranking tool for those, not the single-product lookup tools. If a "
+            "lookup tool returns a matched_category hint, immediately call the ranking tool with that "
+            "category rather than reporting a dead end. If a tool reports the product or category was "
+            "genuinely not found (no hint given), say plainly that you don't have related products for "
+            "that — never substitute a different product/category or invent data to fill the gap."
         )
         return persona + context + tool_guidance
 
-    def _condensed_history(self, client: OpenAI, history: list[ChatMessage]) -> list[dict]:
+    def _condensed_history(
+        self, client: OpenAI, history: list[ChatMessage], existing_summary: str | None
+    ) -> tuple[list[dict], str | None]:
+        """Returns (messages to send, summary to echo back on the next request).
+
+        If the caller already holds a summary of earlier turns and hasn't sent enough new
+        messages to warrant refreshing it, that summary is reused as-is instead of paying for
+        another summarization call on every single turn.
+        """
+        if existing_summary is not None and len(history) < SUMMARY_TRIGGER_LENGTH:
+            condensed = [{"role": "system", "content": f"Earlier conversation summary: {existing_summary}"}]
+            condensed += [{"role": entry.role, "content": entry.content} for entry in history]
+            return condensed, existing_summary
+
         if len(history) < SUMMARY_TRIGGER_LENGTH:
-            return [{"role": entry.role, "content": entry.content} for entry in history]
+            return [{"role": entry.role, "content": entry.content} for entry in history], existing_summary
 
         older, recent = history[:-KEEP_RECENT_MESSAGES], history[-KEEP_RECENT_MESSAGES:]
         transcript = "\n".join(f"{entry.role}: {entry.content}" for entry in older)
+        if existing_summary is not None:
+            transcript = f"Previous summary: {existing_summary}\n\n{transcript}"
         summary_prompt = (
             "Summarize this conversation between a user and a shopping assistant in 3-4 sentences, "
             f"keeping any product names, preferences, or conclusions mentioned:\n\n{transcript}"
@@ -86,16 +110,22 @@ class ChatEngine:
 
         condensed = [{"role": "system", "content": f"Earlier conversation summary: {summary_text}"}]
         condensed += [{"role": entry.role, "content": entry.content} for entry in recent]
-        return condensed
+        return condensed, summary_text
 
     def reply(
-        self, message: str, category_slug: str | None, history: list[ChatMessage], mode: str = "recommender"
+        self,
+        message: str,
+        category_slug: str | None,
+        history: list[ChatMessage],
+        mode: str = "recommender",
+        summary: str | None = None,
     ) -> dict:
         client = self._client_or_raise()
         system_prompt = self._build_system_prompt(category_slug, mode)
 
+        condensed_history, next_summary = self._condensed_history(client, history, summary)
         messages = [{"role": "system", "content": system_prompt}]
-        messages += self._condensed_history(client, history)
+        messages += condensed_history
         messages.append({"role": "user", "content": message})
 
         response = client.chat.completions.create(model=CHAT_MODEL, messages=messages, tools=TOOLS)
@@ -114,4 +144,4 @@ class ChatEngine:
             response = client.chat.completions.create(model=CHAT_MODEL, messages=messages)
             choice = response.choices[0].message
 
-        return {"reply": choice.content, **structured}
+        return {"reply": choice.content, "summary": next_summary, **structured}

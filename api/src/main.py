@@ -110,7 +110,9 @@ def chat(request: ChatRequest) -> ChatResponse:
     if request.category_slug is not None and request.category_slug not in available_slugs():
         raise HTTPException(status_code=404, detail=f"Category '{request.category_slug}' not found.")
     try:
-        result = chat_engine.reply(request.message, request.category_slug, request.history, request.mode)
+        result = chat_engine.reply(
+            request.message, request.category_slug, request.history, request.mode, request.summary
+        )
     except RuntimeError as error:
         raise HTTPException(status_code=503, detail=str(error)) from error
     return ChatResponse(**result)

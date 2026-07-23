@@ -4,18 +4,11 @@ import { useState } from "react";
 import { usePathname } from "next/navigation";
 
 import ChatAvatar from "@/components/ChatAvatar/ChatAvatar";
-import ChatMessageBubble, { type ChatMessage } from "@/components/ChatMessageBubble/ChatMessageBubble";
+import ChatMessageBubble from "@/components/ChatMessageBubble/ChatMessageBubble";
 import ChatModeToggle, { type ChatMode } from "@/components/ChatModeToggle/ChatModeToggle";
 import { useCategories } from "@/lib/useCategories";
 
-type ApiRole = "user" | "assistant";
-
-const OPENING: ChatMessage[] = [
-  {
-    from: "ai",
-    text: "Ask me about a category, a product, or a sentiment trend and I'll point you to the right dashboard view.",
-  },
-];
+import { useChatSession } from "./useChatSession";
 
 function slugFromPathname(pathname: string): string | null {
   const match = pathname.match(/^\/dashboard\/([^/]+)$/);
@@ -26,52 +19,13 @@ function slugFromPathname(pathname: string): string | null {
 }
 
 export default function ChatDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const [messages, setMessages] = useState<ChatMessage[]>(OPENING);
-  const [draft, setDraft] = useState("");
-  const [sending, setSending] = useState(false);
-  const [error, setError] = useState("");
   const [mode, setMode] = useState<ChatMode>("recommender");
 
   const pathname = usePathname();
   const { categories } = useCategories();
   const categorySlug = slugFromPathname(pathname) ?? categories[0]?.slug ?? null;
 
-  async function send() {
-    const text = draft.trim();
-    if (text === "" || sending) return;
-
-    const history = messages
-      .filter((message) => message !== OPENING[0])
-      .map((message) => ({ role: (message.from === "ai" ? "assistant" : "user") as ApiRole, content: message.text }));
-
-    setMessages((prev) => [...prev, { from: "user", text }]);
-    setDraft("");
-    setSending(true);
-    setError("");
-
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/chat`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text, category_slug: categorySlug, history, mode }),
-      });
-      if (!response.ok) throw new Error(`Request failed: ${response.status}`);
-      const data = await response.json();
-      setMessages((prev) => [
-        ...prev,
-        {
-          from: "ai",
-          text: data.reply,
-          productComparison: data.product_comparison ?? undefined,
-          productRanking: data.product_ranking ?? undefined,
-        },
-      ]);
-    } catch {
-      setError("Could not reach the assistant. Is the API running on port 8000?");
-    } finally {
-      setSending(false);
-    }
-  }
+  const { messages, draft, setDraft, sending, error, send } = useChatSession(categorySlug, mode);
 
   return (
     <>
@@ -102,7 +56,8 @@ export default function ChatDrawer({ open, onClose }: { open: boolean; onClose: 
           {sending && (
             <div className="flex items-end gap-2">
               <ChatAvatar from="ai" />
-              <span className="glass-panel flex items-center gap-1 rounded-lg rounded-bl-none p-3 shadow-sm">
+              <span className="glass-panel flex items-center gap-2 rounded-lg rounded-bl-none p-3 shadow-sm">
+                <span className="text-xs text-ink-soft">Checking reviews...</span>
                 <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-primary/60" style={{ animationDelay: "0ms" }} />
                 <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-primary/60" style={{ animationDelay: "160ms" }} />
                 <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-primary/60" style={{ animationDelay: "320ms" }} />

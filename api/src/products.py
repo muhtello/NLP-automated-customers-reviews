@@ -80,10 +80,48 @@ def get_product_reviews(name: str) -> tuple[list[str], int, float]:
     return texts, total, avg_rating
 
 
+def _match_product(name: str) -> pd.DataFrame:
+    """Finds rows for the product the user meant, tolerating partial/loose names.
+
+    Dataset product names are long catalog strings (e.g. "Kindle Paperwhite E-reader - Black,
+    6\" High-Resolution Display..."), but users type short guesses (e.g. "Kindle Paperwhite").
+    Exact match is tried first; if nothing matches, falls back to substring containment in
+    either direction, and if several products qualify, keeps the one with the most reviews
+    (most likely to be what the user meant).
+    """
+    df = _reviews_df()
+    query = name.strip().lower()
+    if query == "":
+        return df.iloc[0:0]
+
+    exact = df[df["name"].str.lower() == query]
+    if not exact.empty:
+        return exact
+
+    names = df["name"].dropna().unique()
+    query_words = set(re.findall(r"[a-z0-9]+", query))
+    candidates = []
+    for product_name in names:
+        product_lower = product_name.lower()
+        if query in product_lower or product_lower in query:
+            candidates.append(product_name)
+            continue
+        product_words = set(re.findall(r"[a-z0-9]+", product_lower))
+        if query_words and query_words.issubset(product_words):
+            candidates.append(product_name)
+
+    if not candidates:
+        return df.iloc[0:0]
+
+    subset = df[df["name"].isin(candidates)]
+    review_counts = subset.groupby("name").size()
+    best_name = review_counts.sort_values(ascending=False).index[0]
+    return subset[subset["name"] == best_name]
+
+
 def find_product(name: str) -> dict | None:
-    """Case-insensitive exact-name lookup, used by the chatbot to confirm a product exists."""
-    matches = _reviews_df()
-    matches = matches[matches["name"].str.lower() == name.strip().lower()]
+    """Loose-match product lookup, used by the chatbot to confirm a product exists."""
+    matches = _match_product(name)
     if matches.empty:
         return None
 
@@ -96,8 +134,7 @@ def find_product(name: str) -> dict | None:
 
 def get_product_comparison(name: str) -> dict | None:
     """Best- and worst-rated review on file for one product, for a chat side-by-side comparison."""
-    matches = _reviews_df()
-    matches = matches[matches["name"].str.lower() == name.strip().lower()]
+    matches = _match_product(name)
     matches = matches.dropna(subset=["reviews.text"])
     if matches.empty:
         return None
@@ -114,18 +151,41 @@ def get_product_comparison(name: str) -> dict | None:
     }
 
 
+# Common product-type words that don't literally appear in a category slug/label but should
+# still resolve to one, e.g. "speakers"/"headphones" -> the audio category's "audio" word.
+# Kept as an explicit allow-list (not fuzzy/semantic matching) so unrelated words still miss.
+_CATEGORY_SYNONYMS: dict[str, set[str]] = {
+    "speaker": {"audio"},
+    "speakers": {"audio"},
+    "headphone": {"audio"},
+    "headphones": {"audio"},
+    "earbud": {"audio"},
+    "earbuds": {"audio"},
+    "earphone": {"audio"},
+    "earphones": {"audio"},
+    "kindle": {"readers"},
+    "ereader": {"readers"},
+    "ereaders": {"readers"},
+}
+
+
 def resolve_category(query: str) -> str | None:
     """Matches a free-text category guess (e.g. 'pets', 'e-readers') to a known dashboard slug.
 
     Matching is deliberately strict (slug/label word overlap only, no fuzzy/semantic guessing)
     so an unrelated request — e.g. "cat products" when the dataset has no cat-specific
     category — resolves to None instead of silently substituting a different category.
+    _CATEGORY_SYNONYMS extends the word-overlap set for common product-type words that
+    otherwise wouldn't share a word with any category slug/label.
     """
     query_slug = _slugify(query)
     if query_slug == "":
         return None
 
     query_words = set(query_slug.split("-"))
+    for word in list(query_words):
+        query_words |= _CATEGORY_SYNONYMS.get(word, set())
+
     for slug, label in _category_slug_map().items():
         if query_slug == slug:
             return slug
