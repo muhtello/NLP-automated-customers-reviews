@@ -21,7 +21,7 @@ export function useCategories() {
         return response.json();
       })
       .then(setCategories)
-      .catch(() => setError(apiErrorMessage("Could not reach the API")));
+      .catch((err) => setError(apiErrorMessage("Could not reach the API", err)));
   }, []);
 
   return { categories, error };

@@ -23,7 +23,7 @@ export function useProductSearch(query: string) {
       })
       .catch((err) => {
         if (err.name === "AbortError") return;
-        setError(apiErrorMessage("Could not reach the API"));
+        setError(apiErrorMessage("Could not reach the API", err));
       });
 
     return () => controller.abort();

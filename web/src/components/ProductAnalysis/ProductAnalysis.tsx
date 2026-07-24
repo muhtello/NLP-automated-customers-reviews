@@ -36,8 +36,8 @@ export default function ProductAnalysis({ productName }: { productName: string }
       });
       if (!response.ok) throw new Error(`Request failed: ${response.status}`);
       setAnalysis(await response.json());
-    } catch {
-      setError(apiErrorMessage("Could not reach the sentiment API"));
+    } catch (err) {
+      setError(apiErrorMessage("Could not reach the sentiment API", err));
     } finally {
       setLoading(false);
     }

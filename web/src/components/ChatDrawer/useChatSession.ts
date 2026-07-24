@@ -65,8 +65,8 @@ export function useChatSession(categorySlug: string | null, mode: ChatMode) {
         setSummary(data.summary);
         setSummarizedCount(Math.max(0, visibleMessages.length - KEEP_RECENT_MESSAGES));
       }
-    } catch {
-      setError(apiErrorMessage("Could not reach the assistant"));
+    } catch (err) {
+      setError(apiErrorMessage("Could not reach the assistant", err));
     } finally {
       setSending(false);
     }

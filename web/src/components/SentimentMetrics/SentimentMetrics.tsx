@@ -36,8 +36,8 @@ export default function SentimentMetrics() {
         setMetrics(data);
         setError("");
       })
-      .catch(() => {
-        setError(apiErrorMessage("Could not reach the sentiment API"));
+      .catch((err) => {
+        setError(apiErrorMessage("Could not reach the sentiment API", err));
         setMetrics(null);
       });
   }, [modelKey]);

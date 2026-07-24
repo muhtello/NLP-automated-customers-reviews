@@ -34,8 +34,8 @@ export default function SentimentForm() {
       });
       if (!response.ok) throw new Error(`Request failed: ${response.status}`);
       setResult(await response.json());
-    } catch {
-      setError(apiErrorMessage("Could not reach the sentiment API"));
+    } catch (err) {
+      setError(apiErrorMessage("Could not reach the sentiment API", err));
     } finally {
       setLoading(false);
     }
