@@ -32,7 +32,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <div className="flex items-center gap-2.5 px-5 py-5">
           <span className="flex h-8 w-8 items-center justify-center rounded bg-primary text-sm font-semibold text-white">S</span>
           <div className="flex flex-col leading-tight">
-            <span className="text-sm font-semibold text-ink">Signal</span>
+            <span className="text-sm font-semibold text-ink">Signal NLP Review</span>
             <span className="font-mono text-[10px] uppercase tracking-widest text-ink-faint">NLP review intelligence</span>
           </div>
         </div>

@@ -34,7 +34,7 @@ from src.schemas import (
 )
 from src.summaries_registry import available_slugs, load_summary
 
-app = FastAPI(title="Customer Reviews API")
+app = FastAPI(title="Signal NLP Review API")
 chat_engine = ChatEngine()
 
 # Comma-separated list of allowed frontend origins, e.g. "https://myapp.vercel.app,http://localhost:3000".

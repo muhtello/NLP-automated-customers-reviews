@@ -15,7 +15,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Signal — Review Intelligence",
+  title: "Signal NLP Review",
   description: "NLP-powered sentiment, clustering, and summarization for Amazon product reviews.",
 };
 
