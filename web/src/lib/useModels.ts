@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { apiErrorMessage } from "@/lib/apiError";
+import { fetchWithRetry } from "@/lib/fetchWithRetry";
 
 export type ModelInfo = { key: string; display_name: string };
 
@@ -9,7 +10,7 @@ export function useModels() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/models`)
+    fetchWithRetry(`${process.env.NEXT_PUBLIC_API_BASE_URL}/models`)
       .then((response) => {
         if (!response.ok) throw new Error(`Request failed: ${response.status}`);
         return response.json();

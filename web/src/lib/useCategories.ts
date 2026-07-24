@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { apiErrorMessage } from "@/lib/apiError";
+import { fetchWithRetry } from "@/lib/fetchWithRetry";
 
 export type CategoryListItem = {
   slug: string;
@@ -15,7 +16,7 @@ export function useCategories() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/categories`)
+    fetchWithRetry(`${process.env.NEXT_PUBLIC_API_BASE_URL}/categories`)
       .then((response) => {
         if (!response.ok) throw new Error(`Request failed: ${response.status}`);
         return response.json();

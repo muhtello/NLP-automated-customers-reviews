@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { apiErrorMessage } from "@/lib/apiError";
+import { fetchWithRetry } from "@/lib/fetchWithRetry";
 import { useModels } from "@/lib/useModels";
 
 type ClassMetrics = { precision: number; recall: number; "f1-score": number; support: number };
@@ -27,7 +28,7 @@ export default function SentimentMetrics() {
 
   useEffect(() => {
     if (modelKey === "") return;
-    fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/metrics/sentiment?model=${modelKey}`)
+    fetchWithRetry(`${process.env.NEXT_PUBLIC_API_BASE_URL}/metrics/sentiment?model=${modelKey}`)
       .then((response) => {
         if (!response.ok) throw new Error(`Request failed: ${response.status}`);
         return response.json();

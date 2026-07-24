@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { apiErrorMessage } from "@/lib/apiError";
+import { fetchWithRetry } from "@/lib/fetchWithRetry";
 
 export type ProductListItem = { name: string; review_count: number; avg_rating: number };
 
@@ -10,7 +11,7 @@ export function useProductSearch(query: string) {
 
   useEffect(() => {
     const controller = new AbortController();
-    fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/products?q=${encodeURIComponent(query)}`, {
+    fetchWithRetry(`${process.env.NEXT_PUBLIC_API_BASE_URL}/products?q=${encodeURIComponent(query)}`, {
       signal: controller.signal,
     })
       .then((response) => {

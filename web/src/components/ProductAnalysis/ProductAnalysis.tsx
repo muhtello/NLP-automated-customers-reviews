@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { apiErrorMessage } from "@/lib/apiError";
+import { fetchWithRetry } from "@/lib/fetchWithRetry";
 import { useModels } from "@/lib/useModels";
 
 type Analysis = {
@@ -29,7 +30,7 @@ export default function ProductAnalysis({ productName }: { productName: string }
     setError("");
     setAnalysis(null);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/products/analyze`, {
+      const response = await fetchWithRetry(`${process.env.NEXT_PUBLIC_API_BASE_URL}/products/analyze`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: productName, model: modelKey }),

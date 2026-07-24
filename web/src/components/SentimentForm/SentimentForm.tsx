@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { apiErrorMessage } from "@/lib/apiError";
+import { fetchWithRetry } from "@/lib/fetchWithRetry";
 import { useModels } from "@/lib/useModels";
 
 type PredictResult = { label: string; confidence: number };
@@ -27,7 +28,7 @@ export default function SentimentForm() {
     setError("");
     setResult(null);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/predict`, {
+      const response = await fetchWithRetry(`${process.env.NEXT_PUBLIC_API_BASE_URL}/predict`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text, model: modelKey }),
