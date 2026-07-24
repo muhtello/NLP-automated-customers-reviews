@@ -5,6 +5,8 @@ Usage:
 Run from the `api/` directory.
 """
 
+import os
+
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -35,9 +37,13 @@ from src.summaries_registry import available_slugs, load_summary
 app = FastAPI(title="Customer Reviews API")
 chat_engine = ChatEngine()
 
+# Comma-separated list of allowed frontend origins, e.g. "https://myapp.vercel.app,http://localhost:3000".
+# Falls back to localhost so local dev keeps working without an .env entry.
+_allowed_origins = os.environ.get("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[origin.strip() for origin in _allowed_origins if origin.strip()],
     allow_methods=["*"],
     allow_headers=["*"],
 )
