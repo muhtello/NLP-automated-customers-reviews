@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 
-import ModelSelect from "@/components/ModelSelect/ModelSelect";
 import { useModels } from "@/lib/useModels";
 
 type Analysis = {
@@ -19,8 +18,7 @@ type Analysis = {
 
 export default function ProductAnalysis({ productName }: { productName: string }) {
   const { models, error: modelsError } = useModels();
-  const [selectedModelKey, setSelectedModelKey] = useState("");
-  const modelKey = selectedModelKey || models[0]?.key || "";
+  const modelKey = models[0]?.key || "";
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -51,7 +49,6 @@ export default function ProductAnalysis({ productName }: { productName: string }
           <p className="text-xs uppercase tracking-widest text-ink-faint">Selected product</p>
           <h2 className="text-base font-semibold text-ink">{productName}</h2>
         </div>
-        <ModelSelect models={models} value={modelKey} onChange={setSelectedModelKey} />
       </div>
 
       <button

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 
-import ModelSelect from "@/components/ModelSelect/ModelSelect";
 import { useModels } from "@/lib/useModels";
 
 type ClassMetrics = { precision: number; recall: number; "f1-score": number; support: number };
@@ -21,8 +20,7 @@ function pct(value: number): string {
 
 export default function SentimentMetrics() {
   const { models, error: modelsError } = useModels();
-  const [selectedModelKey, setSelectedModelKey] = useState("");
-  const modelKey = selectedModelKey || models[0]?.key || "";
+  const modelKey = models[0]?.key || "";
   const [metrics, setMetrics] = useState<SentimentMetricsData | null>(null);
   const [error, setError] = useState("");
 
@@ -53,10 +51,7 @@ export default function SentimentMetrics() {
 
   return (
     <div className="flex flex-col gap-4 rounded-xl border border-line bg-surface p-5">
-      <div className="flex items-center justify-between">
-        <h2 className="text-base font-semibold text-ink">Model results</h2>
-        <ModelSelect models={models} value={modelKey} onChange={setSelectedModelKey} />
-      </div>
+      <h2 className="text-base font-semibold text-ink">Model results</h2>
 
       {(error || modelsError) && <p className="text-sm text-negative-strong">{error || modelsError}</p>}
       {!metrics && !error && !modelsError && <p className="font-mono text-xs uppercase tracking-widest text-ink-faint">Loading...</p>}

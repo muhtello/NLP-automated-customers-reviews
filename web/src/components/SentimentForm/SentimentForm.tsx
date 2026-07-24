@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 
-import ModelSelect from "@/components/ModelSelect/ModelSelect";
 import { useModels } from "@/lib/useModels";
 
 type PredictResult = { label: string; confidence: number };
@@ -15,8 +14,7 @@ const RESULT_STYLE: Record<string, { bg: string; text: string; dot: string }> = 
 
 export default function SentimentForm() {
   const { models, error: modelsError } = useModels();
-  const [selectedModelKey, setSelectedModelKey] = useState("");
-  const modelKey = selectedModelKey || models[0]?.key || "";
+  const modelKey = models[0]?.key || "";
   const [text, setText] = useState("");
   const [result, setResult] = useState<PredictResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -52,7 +50,6 @@ export default function SentimentForm() {
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-        <ModelSelect models={models} value={modelKey} onChange={setSelectedModelKey} />
         <textarea
           value={text}
           onChange={(event) => setText(event.target.value)}
