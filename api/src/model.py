@@ -5,10 +5,10 @@ from functools import lru_cache
 
 from transformers import pipeline
 
-from src.models_registry import HF_HUB_REPO_IDS, MODEL_REGISTRY, model_dir
+from src.models_registry import HF_HUB_REPO_IDS, model_dir
 
 
-@lru_cache(maxsize=len(MODEL_REGISTRY))
+@lru_cache(maxsize=1)
 def _get_classifier(model_key: str):
     hub_repo_id = HF_HUB_REPO_IDS.get(model_key)
     if hub_repo_id:
