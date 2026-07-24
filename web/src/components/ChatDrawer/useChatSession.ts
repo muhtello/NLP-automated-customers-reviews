@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import { apiErrorMessage } from "@/lib/apiError";
 import type { ChatMessage } from "@/components/ChatMessageBubble/ChatMessageBubble";
 import type { ChatMode } from "@/components/ChatModeToggle/ChatModeToggle";
 
@@ -65,7 +66,7 @@ export function useChatSession(categorySlug: string | null, mode: ChatMode) {
         setSummarizedCount(Math.max(0, visibleMessages.length - KEEP_RECENT_MESSAGES));
       }
     } catch {
-      setError("Could not reach the assistant. Is the API running on port 8000?");
+      setError(apiErrorMessage("Could not reach the assistant"));
     } finally {
       setSending(false);
     }

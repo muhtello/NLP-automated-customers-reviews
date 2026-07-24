@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 
+import { apiErrorMessage } from "@/lib/apiError";
+
 export type ProductListItem = { name: string; review_count: number; avg_rating: number };
 
 export function useProductSearch(query: string) {
@@ -21,7 +23,7 @@ export function useProductSearch(query: string) {
       })
       .catch((err) => {
         if (err.name === "AbortError") return;
-        setError("Could not reach the API. Is it running on port 8000?");
+        setError(apiErrorMessage("Could not reach the API"));
       });
 
     return () => controller.abort();

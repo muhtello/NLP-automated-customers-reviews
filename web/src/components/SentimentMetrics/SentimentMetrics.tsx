@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import { apiErrorMessage } from "@/lib/apiError";
 import { useModels } from "@/lib/useModels";
 
 type ClassMetrics = { precision: number; recall: number; "f1-score": number; support: number };
@@ -36,7 +37,7 @@ export default function SentimentMetrics() {
         setError("");
       })
       .catch(() => {
-        setError("Could not reach the sentiment API. Is it running on port 8000?");
+        setError(apiErrorMessage("Could not reach the sentiment API"));
         setMetrics(null);
       });
   }, [modelKey]);

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { apiErrorMessage } from "@/lib/apiError";
 import { useModels } from "@/lib/useModels";
 
 type PredictResult = { label: string; confidence: number };
@@ -34,7 +35,7 @@ export default function SentimentForm() {
       if (!response.ok) throw new Error(`Request failed: ${response.status}`);
       setResult(await response.json());
     } catch {
-      setError("Could not reach the sentiment API. Is it running on port 8000?");
+      setError(apiErrorMessage("Could not reach the sentiment API"));
     } finally {
       setLoading(false);
     }

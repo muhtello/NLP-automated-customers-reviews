@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { apiErrorMessage } from "@/lib/apiError";
 import { useModels } from "@/lib/useModels";
 
 type Analysis = {
@@ -36,7 +37,7 @@ export default function ProductAnalysis({ productName }: { productName: string }
       if (!response.ok) throw new Error(`Request failed: ${response.status}`);
       setAnalysis(await response.json());
     } catch {
-      setError("Could not reach the sentiment API. Is it running on port 8000?");
+      setError(apiErrorMessage("Could not reach the sentiment API"));
     } finally {
       setLoading(false);
     }

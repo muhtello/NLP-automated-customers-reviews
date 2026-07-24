@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 
+import { apiErrorMessage } from "@/lib/apiError";
+
 export type CategoryListItem = {
   slug: string;
   category: string;
@@ -19,7 +21,7 @@ export function useCategories() {
         return response.json();
       })
       .then(setCategories)
-      .catch(() => setError("Could not reach the API. Is it running on port 8000?"));
+      .catch(() => setError(apiErrorMessage("Could not reach the API")));
   }, []);
 
   return { categories, error };

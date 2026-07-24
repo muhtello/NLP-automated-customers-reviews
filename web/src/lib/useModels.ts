@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 
+import { apiErrorMessage } from "@/lib/apiError";
+
 export type ModelInfo = { key: string; display_name: string };
 
 export function useModels() {
@@ -13,7 +15,7 @@ export function useModels() {
         return response.json();
       })
       .then(setModels)
-      .catch(() => setError("Could not reach the sentiment API. Is it running on port 8000?"));
+      .catch(() => setError(apiErrorMessage("Could not reach the sentiment API")));
   }, []);
 
   return { models, error };
