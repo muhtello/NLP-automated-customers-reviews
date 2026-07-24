@@ -6,3 +6,5 @@ transformers
 torch
 openai
 python-dotenv
+pandas
+pyarrow
