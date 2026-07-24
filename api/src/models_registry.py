@@ -36,9 +36,10 @@ def eval_dir(model_key: str) -> Path:
 
 
 def available_model_keys() -> list[str]:
-    """Model keys that have both a trained model directory and an eval report on disk."""
+    """Model keys with an eval report on disk, and weights either on Hugging Face Hub or on disk."""
     return [
         key
         for key in MODEL_REGISTRY
-        if (model_dir(key) / "config.json").exists() and (eval_dir(key) / "classification_report.json").exists()
+        if (eval_dir(key) / "classification_report.json").exists()
+        and (key in HF_HUB_REPO_IDS or (model_dir(key) / "config.json").exists())
     ]
