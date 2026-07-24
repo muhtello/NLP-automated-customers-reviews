@@ -19,14 +19,36 @@ With thousands of reviews available across multiple platforms, manually analyzin
 ## Datasets
 
 - **Primary Dataset**: [Amazon Product Reviews from Kaggel](https://www.kaggle.com/datasets/datafiniti/consumer-reviews-of-amazon-products/data)
+   - This dataset contains three CSV files, with significant overlap between them (many reviews appear in multiple files).
+   - The file `1429_1.csv` contains over 34,000 samples and is sufficient for completing this project.
+   - You may also choose to use the other files, but doing so will require additional cleaning and deduplication.
+   <!--
+   Note on the id & name fields:
+
+   - Some name values are corrupted — two unrelated product names are concatenated together in the same field (this is the type of data quality issue you may encounter when working with real-world datasets).
+   - In several cases, the same id is attached to genuinely different products (e.g. one id covered an Echo, a Fire Tablet, a Kindle cover, a USB charger, and even "Coconut Water Red Tea")
+   - This affected 21 of 89 product IDs (~11% of all reviews)
+
+   Ideal fix: clean the name field (kept only the first product name segment) and treated id as unreliable going forward — using the cleaned product name as the trusted identifier for grouping and analysis instead.
+   -->
+
 - **Larger Dataset**: [Amazon Reviews Dataset](https://cseweb.ucsd.edu/~jmcauley/datasets.html#amazon_reviews)
+
 - **Additional Datasets**: You are free to use other datasets from sources like HuggingFace, Kaggle, or any other platform.
+
+
+Notes:
+- You'll be working with realistic, real-world datasets.
+- Spend some time exploring and understanding the dataset. You may need to fix data quality issues, discard irrelevant features, handle missing values, and make other preprocessing decisions before training your model.
+- Add your `datasets` folder (or at least the CSV files in it) to `.gitignore` before committing — GitHub blocks files over 100MB and warns above 50MB, and our dataset files are big enough to hit that limit.
+
 
 
 <br>
 
 ## Main Tasks
 
+<br>
 
 ### 1. Build a model for Sentiment Analysis
 
@@ -84,7 +106,7 @@ Summarize the performance of your model on the held-out test dataset using both 
    - Class 3: Precision = X%, Recall = X%, F1-score = X%
 - Generate and interpret the confusion matrix: Include both a table and a visual representation to highlight correct predictions, misclassifications, and class-specific performance.
 
-<br>
+<br><br>
 
 ### 2. Build a model for Product Category Clustering
 
@@ -99,11 +121,11 @@ Summarize the performance of your model on the held-out test dataset using both 
       - Non-electronics (Nespresso pods, pet carriers, etc.)
 
 
-<br>
+<br><br>
 
-### 3. Build a Model for Product Review Summarization Using Generative AI
+### 3. Generate a summary for each product category using Generative AI
 
-- **Goal**: Summarize reviews into articles that recommend the top products for each category.
+- **Goal**: Generate a summary with the reviews for each category.
 - **Task**: Create a model that generates a short article (like a blog post) for each of the product categories you created in the previous step. 
 
 
@@ -119,59 +141,42 @@ This is just an example. You can get more ideas from other consumer Reviews webs
 
 **Some options**:
 
-- Consider using **Pretrained Generative Models** like **T5**, **GPT-3**, or **BART** for generating coherent and well-structured summaries. These models excel at tasks like summarization and text generation, and can be fine-tuned to produce high-quality outputs based on the extracted insights from reviews.
-- You are encouraged to explore other **Transformer-based models** available on platforms like **Hugging Face**. Fine-tuning any of these pre-trained models on your specific dataset could further improve the relevance and quality of the generated summaries.
-- You can also use an LLM API (e.g., OpenAI API) to generate the summaries -it will give good results. However, we encourage you to try a pretrained model first.
+- You can use **Pretrained Generative Models** like **T5**, or **BART** for generating coherent and well-structured summaries. These models excel at tasks like summarization and text generation, and can be fine-tuned to produce high-quality outputs based on the extracted insights from reviews.
+- You can also explore other **Transformer-based models** available on platforms like **Hugging Face**. Fine-tuning any of these pre-trained models on your specific dataset could further improve the relevance and quality of the generated summaries.
+- Another option is to use a proprietary LLM API (e.g., the OpenAI API) to generate the summaries, as it can produce high-quality results. However, we encourage you to first explore using a pretrained model that you can run and adapt yourself.
 
 
-<br>
+**Recommendations**:
 
-### 4. Deployment
+- If you use a pretrained model, start with the smallest versions of popular models (llama, mistral, ...). Choose a small model that you can fine tune and run fast inference on. Anywhere between 1B-8B parameters should be fine, do not go larger.
+- Work on the prompt for the summarizer by experimenting with multiple prompt variants and evaluating their performance. If prompt engineering alone does not achieve the desired quality, consider fine-tuning the model for this specific task to improve accuracy and consistency.
 
-Finally, put everything together and make it available for final users.
 
-- **Goal**: expose some of the functionality you've created, in a way that makes it useful for final users.
+<br><br>
+
+### 4. Build & Deploy a final product
+
+Now it's time to turn your models into something people can actually use. Bring together the sentiment classifier, clustering model, and summarization model you've built into a single, functional product.
+
+- **Goal**: Ship your work as a web app or website that delivers real value to end users, turning your models into a tool stakeholders could actually use to make decisions.
+
+- **Tasks**:
+   - Plan and build a web app or website that integrates some of the functionality you've build.
+   - Deploy it so it's accessible to others.
 
 
 **Some Ideas**:
 
 We provide you with some ideas below. However, you are not limited to these options. Feel free to build a web app or website that does different things to what listed below.
 
-1. **Create a website for the marketing department in your company**, who needs to gain insights on how well the products are received by customers (from reviews) and what other competitive products exist in the market.  For example, users in your webpage can choose between product categories and be shown statistics insights (distribution of ratings, best product ratings, etc), and text summarization for that specific category (which are the best product in this category, etc).
-2. **Build a live review aggregator**: this could be a website like, for example, https://www.trustpilot.com/ or https://www.yelp.com/, organizing reviews strategically for buyers. You could add functionality for users to add reviews (for example, through a form, a user could write about a product, selecting which cluster category it belongs to and the rating given). Once a review is submitted, it could be displayed on the page as a ‘recently added review’. Feel free to come up with your own ideas about how you would like your live review aggregator to look like and behave
-3. **Develop a website that generates recommendations by allowing users to upload a csv file with reviews**. For example, this website could allow business owners to upload a dataset of their products and respective reviews. Your website would process these, classifying them, clustering them, and showing insights in the form of small articles listing top products, main product issues, etc., for example (e.g., a list of articles, one per product; a list of articles, one per cluster).
-4. **Develop a website that allows users to search for information about a product or product category through a text box**. This could be a text box where users type in what they are looking for / would like to buy. The output could display recommendations of products in text summary format, the category of the product, and the sentiment distribution for that product.
-
-
-<!-- ## Deployment -->
-
-<!-- - **Hosting**: You are free to host the models on your laptop or any cloud platform.
-- **Framework**: You can use any framework of your choice (e.g., Gradio, AWS, etc.).
-
-- **Options**:
-  - List the models on HuggingFace.
-  - Deploy a text file with the final results.
-  - Create a website that displays the final results.
-  - Build a live review aggregator.
-  - Develop a website that generates recommendations by uploading a file with reviews.
-
-- **Inspiration**: Look at websites like Consumer Reviews, The Verge, or The Wirecutter for ideas. 
-
--->
-
-
-<!--
-### Expectations
-
-- You are expected to showcase a webpage or web app in which some simple user interactions are possible (for example through buttons, text boxes, sliders, ...).
-- All your three components (classification, clustering, and text summarizer) should be visible or possible to interact with on the page in some form.
-- You are free to host the models on your laptop or any cloud platform (e.g., Gradio, AWS, etc.).
-
--->
+1. **Create a website where users can classify a review and view category summaries**. One part of the website would allow users to enter the text of a review and perform sentiment analysis (i.e., get a prediction of whether the review is positive, negative, or neutral). Another part of the website would allow users to browse the summaries you have generated for each category.
+2. **Create a website for the marketing department in your company** to gain insights on how well the products are received by customers. For example, users in your webpage can choose between product categories and be shown statistics insights (distribution of ratings, best product ratings, etc), and text summarization for that specific category (which are the best product in this category, etc).
+3. **Build a live review aggregator**: this could be a website like, for example, https://www.trustpilot.com/ or https://www.yelp.com/, organizing reviews strategically for buyers. You could add functionality for users to add reviews (for example, through a form, a user could write about a product, selecting which cluster category it belongs to and the rating given). Once a review is submitted, it could be displayed on the page as a ‘recently added review’. Feel free to come up with your own ideas about how you would like your live review aggregator to look like and behave.
+4. **Develop a website that generates recommendations by allowing users to upload a csv file with reviews**. For example, this website could allow business owners to upload a dataset of their products and respective reviews. Your website would process these, classifying them, clustering them, and showing insights in the form of small articles listing top products, main product issues, etc., for example (e.g., a list of articles, one per product; a list of articles, one per cluster).
+5. **Develop a website that allows users to search for information about a product or product category through a text box**. This could be a text box where users type in what they are looking for / would like to buy. The output could display recommendations of products in text summary format, the category of the product, and the sentiment distribution for that product.
 
 
 <br>
-
 
 ## Suggested Workflow
 
@@ -179,7 +184,7 @@ We provide you with some ideas below. However, you are not limited to these opti
 2. **Model Development**:
    - Create and evaluate the review classification model.
    - Create and test the clustering model.
-   - Create and test the summarization model using Generative AI.
+   - Create and test the summarization model.
 3. **Deployment**: Deploy the models using your chosen framework.
 4. **Documentation**: Prepare the README, report, and presentation.
 5. **Final Delivery**: Submit all deliverables, including the deployed app and final output.

@@ -1,3 +1,23 @@
 CLAUDE.md
 .claude
-data/
+ml/venv/
+api/.venv/
+__pycache__/
+*.pyc
+.env
+
+# Raw datasets stay local-only (too large for GitHub); the cleaned meta-category
+# artifact is committed because the API reads it live in production.
+data/*
+!data/reviews_with_meta_categories.csv
+
+# Trained model weights (~16GB) stay local-only / on Hugging Face Hub; the small
+# derived artifacts the API needs at runtime (cleaned reviews, summaries, eval
+# reports) are committed so they exist on deploy.
+ml/outputs/*
+!ml/outputs/cleaned_reviews.parquet
+!ml/outputs/summaries
+!ml/outputs/summaries/**
+!ml/outputs/sentiment_eval
+!ml/outputs/sentiment_eval/**
+
